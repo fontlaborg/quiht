@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiht Localization Reviewer</title>
-  <link rel="stylesheet" href="../quiht-core/index.css">
-  <link rel="stylesheet" href="app.css">
 </head>
 <body>
 
@@ -15,12 +13,16 @@
       <div class="app-logo">QUIHT</div>
       <div class="app-logo-badge">L10N VU</div>
     </div>
-    
+
     <div class="app-controls">
+      <!-- Dataset loader -->
+      <label class="dataset-btn" for="dataset-input">Open dataset…</label>
+      <input type="file" id="dataset-input" accept=".zip,.quiht.zip,.json,.quiht.json,.ui,.xml" hidden>
+
       <!-- Statistics tags -->
       <div class="stat-tag" id="stat-total">Total Keys: <span>0</span></div>
       <div class="stat-tag" id="stat-translated">Translated: <span>0</span></div>
-      
+
       <!-- Language Selector -->
       <div class="lang-selector-group">
         <label for="lang-select">Target Language:</label>
@@ -36,12 +38,11 @@
 
   <!-- App Container (Sidebar + Canvas + Grid) -->
   <div class="app-container">
-    
+
     <!-- Left Sidebar (.ui file navigator) -->
     <aside class="app-sidebar">
       <div class="panel-header">UI Files</div>
       <ul class="ui-list" id="ui-files-list">
-        <!-- populated dynamically -->
         <li class="ui-item active">Loading UI files...</li>
       </ul>
     </aside>
@@ -50,16 +51,15 @@
     <main class="app-canvas-pane">
       <div class="canvas-toolbar">
         <div class="canvas-title" id="canvas-active-title">
-          <span>welcomeform.ui</span>
+          <span>—</span>
         </div>
         <div class="theme-switch-group">
           <button class="theme-btn active" id="theme-light">Fusion Light</button>
           <button class="theme-btn" id="theme-dark">Fusion Dark</button>
         </div>
       </div>
-      
+
       <div class="canvas-viewport" id="canvas-viewport">
-        <!-- Rendered widget goes here -->
         <div id="qt-renderer-root" class="qt-mockup-wrapper">
           <!-- Populated by quiht-core -->
         </div>
@@ -76,8 +76,8 @@
         <table class="grid-table">
           <thead>
             <tr>
-              <th style="width: 50%;">Key & Type</th>
-              <th style="width: 50%;">Source & Localized</th>
+              <th style="width: 50%;">Key &amp; Type</th>
+              <th style="width: 50%;">Source &amp; Localized</th>
             </tr>
           </thead>
           <tbody id="grid-tbody">
@@ -94,6 +94,6 @@
     Ready. Hover over layout widgets to view translation details.
   </footer>
 
-  <script type="module" src="app.js"></script>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

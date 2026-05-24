@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quiht-tools"
+dynamic = ["version"]
+description = "CLI utilities for quiht: generate .quiht.json manifests and build .quiht.zip packages from Qt .ui source trees."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "FontLab", email = "info@fontlab.com" }]
+keywords = ["qt", "ui", "quiht", "localization", "html", "renderer"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Localization",
+    "Topic :: Utilities",
+]
+dependencies = ["fire>=0.5.0"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://fontlab.org/quiht/"
+Repository = "https://github.com/fontlaborg/quiht"
+
+[project.scripts]
+quiht = "quiht_tools.__main__:main"
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = { root = ".." }
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/quiht_tools/__version__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/quiht_tools"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/quiht_tools", "README.md", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

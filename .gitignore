@@ -143,3 +143,59 @@ vite.config.ts.timestamp-*
 .vite/
 .DS_Store
 ruvector.db
+
+# ---------------------------------------------------------------------------
+# Python (quiht-tools)
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+*.egg
+
+# Build / dist artifacts
+build/
+dist/
+sdist/
+wheels/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# uv / hatch
+.python-version
+
+# Test / coverage / type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# hatch-vcs generates this from the git tag at build time
+quiht-tools/src/quiht_tools/__version__.py
+
+# quiht packages produced during testing
+*.quiht.zip
+
+# ---------------------------------------------------------------------------
+# quiht build layout
+# ---------------------------------------------------------------------------
+# Generated, vendored sample data (refreshed by build.sh from example/).
+quiht-l10n-vu/public/example/
+quiht-demo/public/sample.quiht.zip
+
+# docs/ is the published GitHub Pages artifact (built by quiht-demo). It is a
+# build OUTPUT but must be committed so Pages can serve it. The sample bundle
+# inside docs/ is committed too, despite the global *.quiht.zip rule above.
+!docs/
+!docs/**
+!docs/sample.quiht.zip

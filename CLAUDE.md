@@ -6,32 +6,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `quiht` renders Qt 5/6 QWidgets `.ui` XML files as HTML/CSS in the browser, imitating Qt's appearance **without implementing any Qt behavior**. It is a viewer/renderer meant to be embedded in or reused by other projects. The driving goal (see `IDEA.md`) is a localization review workflow: show source and translated strings in the actual visual context of the rendered UI.
 
-The repo has three parts plus an example dataset:
+The repo has four packages plus an example dataset and the built demo:
 
-- **`quiht-core/`** — the renderer library (`quiht-core.js`). The `Quiht` class is the entire engine; everything else consumes it.
-- **`quiht-l10n-vu/`** — a static single-page reviewer app that imports `quiht-core` and adds a three-pane localization UI.
-- **`quiht-tools/quiht-jsongen.py`** — a Python Fire CLI that copies `.ui` + `.png` assets out of a Qt source tree and emits the `.quiht.json` manifest.
-- **`example/`** — sample `.ui` files (from FontLab's Proteus codebase), their resources, the generated `.quiht.json`, and `translations.json`.
+- **`quiht-core/`** — the renderer + bundle loader. A **TypeScript** npm package (`quiht-core`), built with `tsc` → `dist/`, dependency `fflate`. Exports `Quiht.parse`/`Quiht.render`, the `render`/`parse` functions, and `loadBundle`. The `Quiht` class preserves the original static API; everything else consumes it.
+- **`quiht-l10n-vu/`** — the three-pane localization reviewer SPA. A **TypeScript** npm package (`quiht-l10n-vu`) built with **Vite**. Imports `quiht-core`, loads its dataset via `loadBundle` (default example, or any dropped/picked `.quiht.zip` / `.quiht.json` / `.ui`).
+- **`quiht-demo/`** — source of the static drag-and-drop demo (Vite + TS). Builds into the repo's `docs/` for GitHub Pages (https://fontlab.org/quiht/). Not published to npm.
+- **`quiht-tools/`** — a **Python** package (`quiht-tools`, PyPI) with a Fire CLI: `generate` emits a `.quiht.json` manifest from a Qt source tree, `pack`/`unpack` build and extract `.quiht.zip` packages. Versioned via `hatch-vcs` from git tags.
+- **`example/`** — sample `.ui` files (from FontLab's Proteus codebase), their resources, the `.quiht.json`, and `translations.json`. The canonical fixtures; `build.sh` vendors copies into the demo and reviewer.
+- **`docs/`** — the built static demo (committed build output served by Pages).
 
-> Note: `SPEC.md` files describe a TypeScript API, but the implementation is plain ES-module JavaScript with no build step or type checking. Treat the specs as design intent, the `.js` as ground truth.
+> Note: `SPEC.md` files describe design intent. The implementation is now real TypeScript with build steps and tests — treat the TS sources as ground truth.
 
-## Running and testing
+## Building, running, testing
 
-There is no build system, no `package.json`, and no test suite. The app is static ES modules loaded via `<script type="module">` and `fetch()`, so it **must be served over HTTP** (file:// breaks module + fetch). From the repo root:
-
-```bash
-python3 -m http.server 8000
-# then open http://localhost:8000/quiht-l10n-vu/index.html
-```
-
-Regenerate the example manifest from a Qt source tree:
+Everything builds via the top-level scripts:
 
 ```bash
-# requires: pip install fire
-python3 quiht-tools/quiht-jsongen.py generate <src_dir> ./example --url_prefix http://localhost:8000/
+./build.sh            # builds quiht-core, quiht-l10n-vu, quiht-demo (->docs/), quiht-tools
+./publish.sh          # DRY RUN by default; ./publish.sh --yes to publish to PyPI + npm
 ```
 
-`generate` accepts `--ui_files "a.ui,b.ui"` to override the default Proteus file set. It walks `src_dir` indexing every `.png`, parses each `.ui` for `:/...` / `.png` resource references, copies matches (including `@2x` variants) into `example/`, and writes `example/.quiht.json`.
+Per package:
+
+```bash
+cd quiht-core     && npm install && npm run build && npm test   # tsc -> dist, vitest
+cd quiht-l10n-vu  && npm install && npm run dev                  # Vite reviewer SPA
+cd quiht-demo     && npm install && npm run dev                  # Vite demo page
+cd quiht-tools    && uv run python -m quiht_tools --help         # Fire CLI
+```
+
+The TS apps use Vite with `base: "./"`, so built output uses relative asset
+paths and serves from any sub-path or the file system.
+
+Regenerate the example manifest / build a `.quiht.zip` from a Qt source tree:
+
+```bash
+cd quiht-tools
+uv run python -m quiht_tools generate <src_dir> ../example --url_prefix http://localhost:8000/
+uv run python -m quiht_tools pack ../example --output ../sample.quiht.zip --name sample
+```
+
+`generate` walks `src_dir` indexing every `.png`, parses each `.ui` for `:/...` / `.png` resource references, copies matches (including `@2x` variants), and writes `.quiht.json`. `pack` zips a bundle dir (or, with `from_src=True`, a source tree) into a `.quiht.zip`.
 
 ## Architecture
 
@@ -59,24 +74,28 @@ Provides the Qt-Fusion-like appearance via CSS variables and the `.QWidget`/`.Q*
 
 ### Reviewer app: `quiht-l10n-vu/`
 
-`index.html` + `app.css` + `app.js`. On load, `app.js`:
-1. Fetches `../example/.quiht.json` (manifest) and `../example/translations.json`.
-2. Lists `.ui` files in the sidebar; selecting one fetches and `Quiht.parse`s it.
-3. `parseTranslatableItems` independently re-walks the XML to build the translation grid (same `@`/`<widgetName>.<prop>` key convention as the renderer — keep these two in sync if you change the key scheme).
-4. `renderUi` calls `Quiht.render` with a `resourceResolver` (manifest lookup → `../example/...`) and a `translationResolver` (looks up `translations[key][lang]`, falling back to `en` then raw).
+`index.html` + `src/main.ts` + `src/app.css` (Vite). On load, `main.ts`:
+1. Calls `loadBundle("./example/.quiht.json")` for the default dataset; the
+   **Open dataset…** button and drag-and-drop let the user load any
+   `.quiht.zip` / `.quiht.json` / `.ui` (also via `loadBundle`).
+2. Lists the bundle's `.ui` files in the sidebar; selecting one renders
+   `bundle.uiDocs[name]`.
+3. `extractTranslatableItems` (a pure, unit-tested function) re-walks the XML to build the translation grid, using the same `@`/`<widgetName>.<prop>` key convention as the renderer — keep these two in sync if you change the key scheme.
+4. `renderUi` calls `Quiht.render` with the bundle's `resourceResolver` and a `translationResolver` (looks up `translations[key][lang]`, falling back to `en` then raw).
 5. `setupInteractiveEvents` cross-links the rendered widgets and the grid rows by `data-quiht-key` for bidirectional hover/click highlighting.
 
 `translations.json` shape: `{ "<key>": { "en": "...", "de": "...", ... } }`.
 
 ## Data conventions
 
-- **Manifest (`.quiht.json`):** `{ prefix, ui: {name → relPath}, resources: {qrcPath → relPath} }`. Paths in `ui`/`resources` are relative to the manifest's directory; the l10n app prepends `../example/`. (The `prefix` field is written by the generator but not currently consumed by the app.)
+- **Manifest (`.quiht.json`):** `{ prefix, ui: {name → relPath}, resources: {qrcPath → relPath} }`. Paths in `ui`/`resources` are relative to the manifest/archive root; `loadBundle` resolves them (URLs relative to the manifest, or object URLs for in-zip resources). (The `prefix` field is written by the generator but not currently consumed.)
+- **`.quiht.zip`:** a ZIP whose root holds `.quiht.json` + `ui/` + `resources/` (+ optional `translations.json`). Built by `quiht-tools pack`; loaded by `quiht-core loadBundle`.
 - **Resource keys** in the manifest are the *raw* Qt paths (`:/images/resources/document_open.png`), which is exactly what `_getProperty` returns for an `iconset` — so the resolver can look them up directly.
 - The generator hardcodes a couple of Proteus-specific filename remaps (`document_open.png`→`file_open.png`, `document_new.png`→`new.png`); these are dataset quirks, not general logic.
 
 ## When extending
 
-- **New widget type:** add a `case` in `_renderWidget`. Emit `class="<QtClass> QWidget"` and add matching styling to `index.css`. If it carries localizable text, set the `quiht-translatable-node` class + `data-quiht-*` attributes the way the existing cases do, and add the property to `parseTranslatableItems` in the l10n app.
+- **New widget type:** add a `case` in `_renderWidget`. Emit `class="<QtClass> QWidget"` and add matching styling to `index.css`. If it carries localizable text, set the `quiht-translatable-node` class + `data-quiht-*` attributes the way the existing cases do, and add the property to `extractTranslatableItems` in the l10n app (`quiht-l10n-vu/src/main.ts`).
 - **Custom/non-standard widgets:** prefer `options.customRenderers` over editing the core switch.
 - The two SPEC files are the place to record API intent; update them alongside behavior changes.
 

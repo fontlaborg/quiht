@@ -1,0 +1,20 @@
+{
+  "name": "quiht-demo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Static drag-and-drop demo for quiht-core, published to https://fontlab.org/quiht/. Builds into ../docs.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "quiht-core": "file:../quiht-core"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

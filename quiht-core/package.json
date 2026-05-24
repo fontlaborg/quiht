@@ -1,0 +1,55 @@
+{
+  "name": "quiht-core",
+  "version": "0.0.0",
+  "description": "Client-side renderer that displays Qt 5/6 .ui XML files as HTML/CSS, with .quiht.zip bundle loading and localization tagging.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "keywords": [
+    "qt",
+    "ui",
+    "renderer",
+    "html",
+    "localization",
+    "quiht"
+  ],
+  "homepage": "https://fontlab.org/quiht/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fontlaborg/quiht.git",
+    "directory": "quiht-core"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "style": "./index.css",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./index.css": "./index.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "index.css",
+    "SPEC.md",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

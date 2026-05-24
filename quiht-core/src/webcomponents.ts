@@ -1,5 +1,5 @@
 /**
- * Vanilla Web Components for FontLab complex widgets.
+ * Vanilla Web Components for complex custom widgets.
  *
  * The Alpine compiler (`compiler.ts`) maps custom Qt classes such as `YAngle`
  * or `QtColorPicker` to these registered custom elements. Each one exposes a
@@ -58,7 +58,7 @@ function makeValueElement(inputType: string, baseClass: string): CustomElementCo
   };
 }
 
-/** The custom-element tag → backing input type for the FontLab widget set. */
+/** The custom-element tag → backing input type for the supported widget set. */
 const COMPONENTS: Record<string, string> = {
   "q-angle-popup": "number",
   "q-opacity-bar": "range",

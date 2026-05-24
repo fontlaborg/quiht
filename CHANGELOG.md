@@ -6,6 +6,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions follow 
 
 ## [Unreleased]
 
+### Expanded custom-widget coverage & demo gallery (2026-05-25)
+
+Verified-complete (fresh: `quiht-core` 54 vitest pass, `tsc` exit 0; demo built to
+`docs/` and exercised in a browser — gallery loads, custom-widget example renders
+0 placeholders, dark/light toggle persists).
+
+- **`customWidgetPreset`** (`quiht-core/src/presets/custom-widgets.ts`) widened from
+  ~11 to ~60 widget classes, mapped from each widget's Qt base class: text labels
+  → `<span>`, line edits → `<input>`, editors → `<textarea>`, icon checkbox/radio
+  → `<label>`+`<input>`, item views → `<ul>`/`<li>`, colour/preview controls →
+  styled `<div>`s, and `QWidget` containers that children flow into. New helpers:
+  `labelRenderer`/`inputRenderer`/`textareaRenderer`/`containerRenderer`/
+  `iconToggleRenderer`/`iconButtonRenderer`/`itemViewRenderer`, plus a 3×3 centre
+  selector and node/colour-swatch buttons.
+- **Standard Qt widgets added to core `render.ts`**: `Line` (separator),
+  `QCommandLinkButton`, `QDateEdit`/`QTimeEdit`/`QDateTimeEdit`, `QToolBar`,
+  `QDockWidget` (titled), `QScrollBar`, `QTextBrowser`, `QGraphicsView`/
+  `QOpenGLWidget`/`QQuickWidget`, `QStackedWidget`, `QTableWidget`/`QTableView`,
+  with matching styles in `index.css`. Synthetic-corpus check: the full fixture
+  set renders with ≤3 placeholder widgets remaining (true long-tail).
+- **Demo gallery**: `quiht-demo` now ships several themed **synthetic** example
+  bundles (form controls, layouts, custom-widget showcase) under
+  `example-sets/`, generated reproducibly by `build.sh` into
+  `quiht-demo/public/examples/` and listed in `examples/index.json`. The demo
+  renders examples with `customWidgetPreset` and keeps the persisted dark/light
+  toggle. No proprietary product fixtures are shipped.
+
+### Demo provenance cleanup (2026-05-25)
+
+- Replaced the bundled example `.ui` files with synthetic demo content that
+  keeps coverage for standard widgets, resources, localization keys, and the
+  supported `Y*` custom-widget constructs without copying proprietary product
+  screens.
+- Replaced copied example icon resources with generated generic PNG icons.
+- Replaced the old product-specific example archive with `example/demo.quiht.zip`
+  and removed old public demo gallery bundles that contained product-specific
+  fixtures.
+- Updated demo copy and specs to describe synthetic examples rather than real
+  product examples.
+
 ### Release scripts (2026-05-25)
 
 - `build.sh` now starts by removing generated build artifacts, uses lockfile
@@ -21,8 +61,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions follow 
 ### Alpine.js compiler (task004) (2026-05-25)
 
 Verified-complete (fresh: `quiht-core` 48 vitest passing — 15 new + 33 prior —
-and `tsc -p tsconfig.json` exit 0; smoke-compiled real Proteus
-`dlglayerpropagate.ui` / `newstrokesgallery.ui`).
+and `tsc -p tsconfig.json` exit 0; smoke-compiled representative private
+Qt Designer fixtures outside the published package).
 
 Added an HTML-first, build-free compile path for embedding Qt `.ui` files in
 Alpine.js apps (e.g. fog-online), kept **alongside** the DOM `render()` rather
@@ -50,15 +90,17 @@ than replacing it:
 
 Verified-complete (fresh: `quiht-core` 33 vitest, `quiht-l10n-vu` 6 vitest, `build.sh` exit 0):
 
-- **Widget coverage** (`quiht-core/src/render.ts` + `index.css`, census-driven by Proteus): added renderers for **QFrame, QSplitter, QSpinBox/QDoubleSpinBox, QSlider, QProgressBar, QDialogButtonBox, QListWidget/QTreeWidget, QMenuBar/QMenu, QMainWindow**, plus an explicit `QWidget` container case. `parser.ts` now reads `<enum>`/`<set>` properties.
-- **FontLab `statusTip=@key` convention**: `textKeyFor()` prefers a `@`-prefixed `statusTip` as the canonical translation key over the synthesized `<name>.text`, aligning with FontLab's `.ts` catalogs; mirrored in the l10n viewer.
-- **FontLab custom-widget preset** (`quiht-core/src/presets/fontlab.ts`, exported): `customRenderers` covering `YLineEditSuffix`, `YSelector`, `YDarker/YLighterWidget`, `YAngle/YPopupAngle`, `YCheckButton`, `YSimpleSlider`, `YOpacityBar`, `QtColorPicker`, `QtnPropertyView`.
+- **Widget coverage** (`quiht-core/src/render.ts` + `index.css`, informed by representative Qt Designer fixtures): added renderers for **QFrame, QSplitter, QSpinBox/QDoubleSpinBox, QSlider, QProgressBar, QDialogButtonBox, QListWidget/QTreeWidget, QMenuBar/QMenu, QMainWindow**, plus an explicit `QWidget` container case. `parser.ts` now reads `<enum>`/`<set>` properties.
+- **`statusTip=@key` convention**: `textKeyFor()` prefers a `@`-prefixed `statusTip` as the canonical translation key over the synthesized `<name>.text`; mirrored in the l10n viewer.
+- **Custom-widget preset** (`quiht-core/src/presets/custom-widgets.ts`, exported): `customRenderers` covering `YLineEditSuffix`, `YSelector`, `YDarker/YLighterWidget`, `YAngle/YPopupAngle`, `YCheckButton`, `YSimpleSlider`, `YOpacityBar`, `QtColorPicker`, `QtnPropertyView`.
 - **quiht-l10n-vu**: CSS-transform zoom (buttons + ctrl/⌘-wheel) + drag-pan on the render canvas; per-`.ui` translation-coverage badges in the sidebar.
 - **Tests**: +18 quiht-core (widgets/statustip/preset), +2 l10n-vu.
 - **CI**: `.github/workflows/ci.yml` — per-package install+build+test on push/PR (no publish steps).
-- **Cleanup**: deleted dead `quiht-core/quiht-core.js` (superseded by `src/`); moved `RESEARCH.md` → `docs/design/`; fixed `CLAUDE.md` Architecture section; removed stray `ruvector.db`/`.DS_Store` and gitignored them; tracked `example/proteus.quiht.zip` fixture.
+- **Cleanup**: deleted dead `quiht-core/quiht-core.js` (superseded by `src/`); moved `RESEARCH.md` → `docs/design/`; fixed `CLAUDE.md` Architecture section; removed stray `ruvector.db`/`.DS_Store` and gitignored them.
 
-**Real-data result:** the 6-UI Proteus bundle now renders with **0 dotted-placeholder divs** (was 24) once `fontlabPreset` is applied — all widget classes resolved.
+**Private-fixture result:** the representative multi-UI bundle rendered with
+**0 dotted-placeholder divs** once `customWidgetPreset` was applied — all widget
+classes resolved.
 
 ### Added — re-engineering into a multi-package open-source repo (task003.1)
 
@@ -75,7 +117,7 @@ Verified-complete work (all test evidence fresh as of 2026-05-24):
   - Three-pane reviewer UI with bidirectional highlight preserved. **4 vitest tests pass.**
 - **quiht-tools** — Python PyPI package (was a single `quiht-jsongen.py` script).
   - Restructured to `src/quiht_tools/` with hatch-vcs git-tag semver.
-  - Fire CLI: `gen`/`jsongen`, `pack`, `unpack`, `version`. FontLab/Proteus hardcodes removed (generic `resource_remap`; auto-discovers `.ui`).
+  - Fire CLI: `gen`/`jsongen`, `pack`, `unpack`, `version`. Product-specific hardcodes removed (generic `resource_remap`; auto-discovers `.ui`).
   - `.quiht.zip` create/extract. **7 pytest tests pass.**
 - **docs/** — static drag-drop demo for `https://fontlab.org/quiht/` (built from `quiht-demo/` via Vite → `docs/`), with theme toggle and error banner.
 - **build.sh** — builds all four packages (Python via hatch/uv, JS via tsc/Vite). **publish.sh** — dry-run by default; `--yes` to publish; npm versions stamped from `git describe --tags`.
@@ -85,8 +127,11 @@ Verified-complete work (all test evidence fresh as of 2026-05-24):
 
 - Canonical **`.quiht.zip`** format (shared Python + TypeScript): a ZIP whose root holds `.quiht.json` + `ui/` + `resources/` (+ optional `translations.json`); manifest `ui`/`resources` values are paths relative to the archive root.
 
-### Verified with real FontLab data
+### Verified with private Qt Designer data
 
-- Generated `example/proteus.quiht.zip` from `../fontlab/Proteus/` `.ui` files + image assets via `quiht-tools`.
-- `quiht-core` rendered all 6 Proteus UIs (36 translatable nodes tagged with a `translationResolver`).
-- Discovered the FontLab convention: a widget's `statusTip` holds the `@`-prefixed translation key (e.g. `@pref_zoom.label_20`) while `text` holds the source string.
+- Local, unpublished Qt Designer fixtures were used to validate the renderer
+  against dense real-world widget layouts.
+- `quiht-core` rendered the representative UIs with translatable nodes tagged
+  by a `translationResolver`.
+- Confirmed the `statusTip=@key` convention: a widget's `statusTip` can hold the
+  `@`-prefixed translation key while `text` holds the source string.

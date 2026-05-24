@@ -70,8 +70,8 @@ describe("compile — connections (behavior layer)", () => {
   });
 
   it("records unmapped signals (accepted/rejected) as honest comments", () => {
-    const html = compile(parse(exampleUi("dlgnamesuffix.ui")));
-    // dlgnamesuffix has no connections; assert the buttonbox accept/reject path
+    const html = compile(parse(exampleUi("demo-dialog.ui")));
+    // demo-dialog has no connections; assert the buttonbox accept/reject path
     // via an inline dialog fixture instead.
     const dlg = compile(
       parse(`

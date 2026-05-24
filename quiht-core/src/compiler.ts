@@ -4,9 +4,9 @@
  * Where {@link "./render".render} builds live DOM nodes for the localization
  * viewer, this module compiles the {@link UiRoot} AST into a **string** of
  * HTML-first, build-free markup enriched with Alpine.js attributes
- * (`x-data`/`x-model`/`@event`) and FontLab Web Components. The output is meant
- * to be dropped straight into an Alpine page (e.g. fog-online) with no React,
- * TypeScript, or Vite build step.
+ * (`x-data`/`x-model`/`@event`) and vanilla Web Components. The output is meant
+ * to be dropped straight into an Alpine page with no React, TypeScript, or Vite
+ * build step.
  *
  * Responsibilities mirror task004:
  *  - DOM layer: Qt classes → native HTML / registered custom elements.
@@ -44,7 +44,7 @@ export interface CompileOptions {
   strict?: boolean;
   /**
    * Map of Qt custom-widget class name → custom-element tag. Defaults to
-   * {@link defaultCustomElements} (the FontLab `Y*`/`Qt*` set). Anything not in
+   * {@link defaultCustomElements} (the supported `Y*`/`Qt*` set). Anything not in
    * the map falls back to `<q-widget>` (or throws in `strict` mode).
    */
   customElements?: Record<string, string>;

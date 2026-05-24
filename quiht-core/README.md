@@ -100,7 +100,7 @@ interface QuihtBundle {
 
 ```ts
 const bundle = await loadBundle(zipBlob);
-const doc = bundle.uiDocs["dlgnamesuffix.ui"];
+const doc = bundle.uiDocs["demo-dialog.ui"];
 const el = render(doc, { resourceResolver: bundle.resourceResolver });
 // ... when done:
 bundle.dispose();
@@ -155,12 +155,10 @@ What it emits:
   HTML comments.
 - **CSS layer** — layouts become `q-vbox-layout`/`q-hbox-layout`/`q-grid-layout`
   flex/grid utilities defined in `quiht-core/alpine.css`, themeable via `--q-*`
-  (and inheriting fog-online's `--th-*`) custom properties.
+  custom properties (which can inherit a host app's own theme tokens).
 
 `registerQuihtComponents()` defines vanilla custom elements that expose a
 reflected `value` and emit `input` — exactly the contract `x-model` binds to.
-
-See `docs/design/fog-online.md` for the integration contract.
 
 ## Versioning
 

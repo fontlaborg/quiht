@@ -1,13 +1,13 @@
 /**
  * quiht demo — drag-and-drop a Qt `.ui`, `.quiht.json`, or `.quiht.zip`, or load
- * one of the bundled FontLab examples, and see it rendered via quiht-core.
+ * one of the bundled synthetic examples, and see it rendered via quiht-core.
  * Pure static client-side app (no server).
  */
 
 import "quiht-core/index.css";
 import "./demo.css";
 
-import { render, loadBundle, fontlabPreset, type QuihtBundle } from "quiht-core";
+import { render, loadBundle, customWidgetPreset, type QuihtBundle } from "quiht-core";
 
 const dropzone = byId<HTMLElement>("dropzone");
 const fileInput = byId<HTMLInputElement>("file-input");
@@ -89,12 +89,12 @@ function selectUi(name: string): void {
   const doc = bundle.uiDocs[name];
   if (!doc) return;
   renderRootEl.innerHTML = "";
-  // The FontLab preset resolves Y*/Qt* custom widgets to real controls rather
-  // than dotted placeholders.
+  // The optional preset resolves supported Y*/Qt* custom widgets to real
+  // controls rather than dotted placeholders.
   renderRootEl.appendChild(
     render(doc, {
       resourceResolver: bundle.resourceResolver,
-      customRenderers: fontlabPreset,
+      customRenderers: customWidgetPreset,
     }),
   );
 }

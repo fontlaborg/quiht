@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DemoStart</class>
+ <widget class="QWidget" name="DemoStart">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>640</width><height>360</height></rect>
+  </property>
+  <property name="windowTitle"><string>Project Starter</string></property>
+  <property name="statusTip"><string>@demo.start.title</string></property>
+  <layout class="QHBoxLayout" name="mainLayout">
+   <property name="leftMargin"><number>24</number></property>
+   <property name="topMargin"><number>24</number></property>
+   <property name="rightMargin"><number>24</number></property>
+   <property name="bottomMargin"><number>24</number></property>
+   <property name="spacing"><number>18</number></property>
+   <item>
+    <layout class="QVBoxLayout" name="actionsLayout">
+     <item>
+      <widget class="QCommandLinkButton" name="newButton">
+       <property name="text"><string>New Project</string></property>
+       <property name="description"><string>Create a clean demo workspace</string></property>
+       <property name="statusTip"><string>@demo.start.newButton</string></property>
+       <property name="icon"><iconset resource="demo.qrc"><normaloff>:/demo/resources/new.png</normaloff>:/demo/resources/new.png</iconset></property>
+       <property name="iconSize"><size><width>40</width><height>40</height></size></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCommandLinkButton" name="openButton">
+       <property name="text"><string>Open Package</string></property>
+       <property name="description"><string>Load an existing demo package</string></property>
+       <property name="statusTip"><string>@demo.start.openButton</string></property>
+       <property name="icon"><iconset resource="demo.qrc"><normaloff>:/demo/resources/open.png</normaloff>:/demo/resources/open.png</iconset></property>
+       <property name="iconSize"><size><width>40</width><height>40</height></size></property>
+      </widget>
+     </item>
+     <item><spacer name="actionsSpacer"><property name="orientation"><enum>Qt::Vertical</enum></property></spacer></item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="recentPane" native="true">
+     <layout class="QVBoxLayout" name="recentLayout">
+      <item>
+       <widget class="QLabel" name="recentLabel">
+        <property name="text"><string>Recent demo packages:</string></property>
+        <property name="statusTip"><string>@demo.start.recentLabel</string></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="recentScroll">
+        <property name="widgetResizable"><bool>true</bool></property>
+        <widget class="QWidget" name="recentList">
+         <layout class="QVBoxLayout" name="recentListLayout">
+          <item>
+           <widget class="QCommandLinkButton" name="recentSample">
+            <property name="text"><string>sample-interface.quiht.zip</string></property>
+            <property name="description"><string>Generated demo fixture with generic controls</string></property>
+            <property name="statusTip"><string>@demo.start.recentSample</string></property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources><include location="demo.qrc"/></resources>
+ <connections/>
+</ui>

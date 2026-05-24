@@ -269,8 +269,8 @@ function extractTranslatableItems(xmlDoc: Document): TranslatableItem[] {
     const widgetName = widget.getAttribute("name") ?? "";
     const widgetClass = widget.getAttribute("class") ?? "";
 
-    // FontLab `.ts` convention: a widget's `statusTip` of the form `@some.key`
-    // is the canonical translation key for that widget's `text` (mirrors
+    // Common Qt localization convention: a widget's `statusTip` of the form
+    // `@some.key` is the canonical translation key for that widget's `text` (mirrors
     // textKeyFor() in quiht-core's renderer — keep the two in sync).
     const statusTipNode = widget.querySelector(':scope > property[name="statusTip"] > string');
     const statusTip = statusTipNode?.textContent?.trim() ?? "";

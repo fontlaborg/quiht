@@ -1,15 +1,15 @@
 {
   "prefix": "example/",
   "ui": {
-    "yanglepopup.ui": "ui/yanglepopup.ui",
-    "yvaluepopup.ui": "ui/yvaluepopup.ui",
-    "dlgnamesuffix.ui": "ui/dlgnamesuffix.ui",
-    "welcomeform.ui": "ui/welcomeform.ui"
+    "demo-dialog.ui": "ui/demo-dialog.ui",
+    "demo-start.ui": "ui/demo-start.ui",
+    "demo-angle.ui": "ui/demo-angle.ui",
+    "demo-slider.ui": "ui/demo-slider.ui"
   },
   "resources": {
-    ":/images/resources/document_open.png": "resources/file_open.png",
-    ":/images/resources/document_open@2x.png": "resources/file_open@2x.png",
-    ":/images/resources/document_new.png": "resources/new.png",
-    ":/images/resources/document_new@2x.png": "resources/new@2x.png"
+    ":/demo/resources/open.png": "resources/open.png",
+    ":/demo/resources/open@2x.png": "resources/open@2x.png",
+    ":/demo/resources/new.png": "resources/new.png",
+    ":/demo/resources/new@2x.png": "resources/new@2x.png"
   }
 }

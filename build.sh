@@ -58,6 +58,17 @@ mkdir -p quiht-demo/public
 ( cd quiht-tools && uv run python -m quiht_tools pack ../example \
     --output ../quiht-demo/public/sample.quiht.zip --name sample --verbose=False )
 
+# Regenerate the demo's themed gallery bundles from their synthetic sources, so
+# the gallery never drifts from example-sets/.
+mkdir -p quiht-demo/public/examples
+for set_dir in quiht-demo/example-sets/*/; do
+  [[ -d "$set_dir" ]] || continue
+  set_name="$(basename "$set_dir")"
+  ( cd quiht-tools && uv run python -m quiht_tools pack "../$set_dir" \
+      --from_src=True --output "../quiht-demo/public/examples/${set_name}.quiht.zip" \
+      --name "$set_name" --verbose=False )
+done
+
 # --- 2. quiht-l10n-vu --------------------------------------------------------
 section "quiht-l10n-vu (TypeScript reviewer SPA)"
 ( cd quiht-l10n-vu && npm_install && npm run build && npm test )

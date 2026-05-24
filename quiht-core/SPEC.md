@@ -15,7 +15,7 @@ export interface ResourceResolver {
 }
 
 export interface TranslationResolver {
-  /** Resolves a key (e.g., '@dlgnamesuffix.label') or original text to localized string */
+  /** Resolves a key (e.g., '@demo.dialog.labelAsset') or original text to localized string */
   translate(key: string, originalText: string): string;
 }
 
@@ -87,7 +87,7 @@ The parser maps layout elements:
 
 Qt `.ui` elements have localizable properties (like `<string>`).
 1. Properties are extracted from elements (e.g. `<property name="text"><string>Name</string></property>`).
-2. If the string starts with `@` (e.g., `@dlgnamesuffix.label`), it indicates a localization key.
+2. If the string starts with `@` (e.g., `@demo.dialog.labelAsset`), it indicates a localization key.
 3. If a `TranslationResolver` is provided, it calls `translate(key, defaultValue)`.
 4. If no resolver is provided, or the translation is missing, it displays the key or default value.
 5. In addition to keys starting with `@`, all plain strings are also sent to the resolver to allow translation of hardcoded strings.
@@ -96,7 +96,7 @@ Qt `.ui` elements have localizable properties (like `<string>`).
 
 ## 4. Custom Widgets Support
 
-To handle custom controls (e.g. `YPopupAngle`, `YSelector` from FontLab):
+To handle custom controls (e.g. `YPopupAngle`, `YSelector`):
 - The renderer generates a standard `div` element.
 - It assigns classes: `class="YPopupAngle QWidget"`.
 - It reads custom property declarations if any.
@@ -109,7 +109,7 @@ To handle custom controls (e.g. `YPopupAngle`, `YSelector` from FontLab):
 Beyond the DOM `render()` (live nodes for the review viewer), `compile()` is a
 parallel, SSR-friendly path that turns a `.ui` into an HTML **string** with
 Alpine.js attributes + Web Components, for build-free embedding in HTML-first
-apps (e.g. fog-online).
+apps.
 
 1. **AST** — `buildAst(doc)` produces a typed `UiRoot` (`WidgetNode`,
    `LayoutNode`, `Connection`) separating XML traversal from element mapping.

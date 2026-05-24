@@ -1,28 +1,28 @@
 {
   "examples": [
     {
-      "name": "Starter sample",
+      "name": "Synthetic control set",
       "file": "./sample.quiht.zip",
       "uiCount": 4,
-      "blurb": "Two FontLab dialogs plus the YAngle/YValue popups — the smallest end-to-end bundle."
+      "blurb": "Generic Qt Designer fixtures covering standard widgets, resources, and custom Y* controls."
     },
     {
-      "name": "Glyph inspector",
-      "file": "./examples/inspector.quiht.zip",
-      "uiCount": 10,
-      "blurb": "FontLab's inspector panels: glyph, node, layer, guide and frame property views."
+      "name": "Form controls",
+      "file": "./examples/controls.quiht.zip",
+      "uiCount": 1,
+      "blurb": "A dense form: line edits, spin boxes, slider, progress, combo, checkboxes, radios and a button box."
     },
     {
-      "name": "Preferences",
-      "file": "./examples/preferences.quiht.zip",
-      "uiCount": 26,
-      "blurb": "The full preferences surface — checkboxes, spin boxes, combos and dense option grids."
+      "name": "Layouts",
+      "file": "./examples/layouts.quiht.zip",
+      "uiCount": 1,
+      "blurb": "Tabbed grid and splitter layouts with group boxes, separator lines, spacers and a tool-button row."
     },
     {
-      "name": "Common dialogs",
-      "file": "./examples/common.quiht.zip",
-      "uiCount": 17,
-      "blurb": "Shared dialogs and galleries: strokes, folders, colour pickers and list widgets."
+      "name": "Custom widgets",
+      "file": "./examples/custom-widgets.quiht.zip",
+      "uiCount": 1,
+      "blurb": "The custom-widget preset in action: colour ring, hue/gradient/opacity bars, angle dial, centre selector, lists and trees."
     }
   ]
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { registerQuihtComponents, QUIHT_COMPONENT_TAGS } from "../src/index.js";
 
 describe("registerQuihtComponents", () => {
-  it("registers the FontLab custom elements idempotently", () => {
+  it("registers the custom elements idempotently", () => {
     const first = registerQuihtComponents();
     expect(first).toEqual(QUIHT_COMPONENT_TAGS);
     for (const tag of QUIHT_COMPONENT_TAGS) {

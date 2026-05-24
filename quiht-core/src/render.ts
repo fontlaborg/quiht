@@ -110,7 +110,7 @@ export function tagTranslatable(el: Element, original: string, fallbackKey: stri
 
 /**
  * Resolves the translation key for a widget's localizable `text`, honouring
- * FontLab's `.ts` convention: when a widget carries a `statusTip` of the form
+ * Qt localization convention: when a widget carries a `statusTip` of the form
  * `@some.key`, that key is the canonical translation key and wins over the
  * synthesized `<widgetName>.text` fallback. When the `text` itself begins with
  * `@`, {@link translate}/{@link tagTranslatable} already prefer it, so this
@@ -667,6 +667,98 @@ export function renderWidget(
       // bottom of this function by pointing it at a detached, hidden container.
       contentContainer = d.createElement("div");
       contentContainer.style.display = "none";
+      break;
+    }
+
+    case "Line": {
+      // Qt Designer's separator: a QFrame styled as an HLine/VLine.
+      el = d.createElement("hr");
+      const orient = propString(widgetNode, "orientation");
+      el.className = `Line QFrame QWidget ${orient.includes("Vertical") ? "q-frame-vline" : "q-frame-hline"}`;
+      break;
+    }
+
+    case "QCommandLinkButton": {
+      el = d.createElement("button");
+      el.className = "QCommandLinkButton QPushButton QWidget";
+      const clText = propString(widgetNode, "text");
+      const clKey = textKeyFor(widgetNode, widgetName);
+      el.textContent = translate(clText, clKey, options);
+      if (isTranslatable(clText, options)) tagTranslatable(el, clText, clKey);
+      break;
+    }
+
+    case "QDateEdit":
+    case "QTimeEdit":
+    case "QDateTimeEdit": {
+      const input = d.createElement("input");
+      input.type =
+        className === "QDateEdit" ? "date" : className === "QTimeEdit" ? "time" : "datetime-local";
+      input.className = `${className} QWidget`;
+      el = input;
+      break;
+    }
+
+    case "QToolBar":
+    case "QDockWidget": {
+      // Container chrome: children flow into it via the generic walk below.
+      el = d.createElement("div");
+      el.className = `${className} QWidget`;
+      if (className === "QDockWidget") {
+        const dockTitle = propString(widgetNode, "windowTitle");
+        if (dockTitle) {
+          const bar = d.createElement("div");
+          bar.className = "q-dock-titlebar";
+          bar.textContent = translate(dockTitle, `${widgetName}.windowTitle`, options);
+          el.appendChild(bar);
+          contentContainer = d.createElement("div");
+          contentContainer.className = "q-dock-content QWidget";
+          el.appendChild(contentContainer);
+        }
+      }
+      break;
+    }
+
+    case "QScrollBar": {
+      // Visual-only: quiht imitates appearance, not scrolling behaviour.
+      el = d.createElement("div");
+      const sbOrient = propString(widgetNode, "orientation");
+      el.className = `QScrollBar QWidget ${sbOrient.includes("Horizontal") ? "q-horizontal" : "q-vertical"}`;
+      const thumb = d.createElement("div");
+      thumb.className = "q-scrollbar-thumb";
+      el.appendChild(thumb);
+      break;
+    }
+
+    case "QTextBrowser": {
+      el = d.createElement("div");
+      el.className = "QTextBrowser QTextEdit QWidget";
+      const html = propString(widgetNode, "html");
+      const plain = propString(widgetNode, "text") || propString(widgetNode, "plainText");
+      if (plain) el.textContent = plain;
+      else if (html) el.textContent = html.replace(/<[^>]+>/g, "").trim();
+      break;
+    }
+
+    case "QGraphicsView":
+    case "QOpenGLWidget":
+    case "QQuickWidget": {
+      el = d.createElement("div");
+      el.className = `${className} QWidget q-canvas-surface`;
+      break;
+    }
+
+    case "QStackedWidget": {
+      // Shows its pages; for review we let all child pages flow in stacked.
+      el = d.createElement("div");
+      el.className = "QStackedWidget QWidget";
+      break;
+    }
+
+    case "QTableWidget":
+    case "QTableView": {
+      el = d.createElement("div");
+      el.className = `${className} QWidget q-table-grid`;
       break;
     }
 

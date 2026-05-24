@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LayoutShowcase</class>
+ <widget class="QWidget" name="LayoutShowcase">
+  <property name="windowTitle"><string>Layout showcase</string></property>
+  <layout class="QVBoxLayout" name="root">
+   <item>
+    <widget class="QTabWidget" name="tabs">
+     <widget class="QWidget" name="gridTab">
+      <attribute name="title"><string>Grid</string></attribute>
+      <layout class="QGridLayout" name="grid">
+       <item row="0" column="0"><widget class="QLabel" name="g00"><property name="text"><string>Top-left</string></property></widget></item>
+       <item row="0" column="1"><widget class="QLineEdit" name="g01"/></item>
+       <item row="1" column="0"><widget class="QLabel" name="g10"><property name="text"><string>Bottom-left</string></property></widget></item>
+       <item row="1" column="1"><widget class="QLineEdit" name="g11"/></item>
+       <item row="2" column="0" colspan="2"><widget class="QPushButton" name="gSpan"><property name="text"><string>Spanning button</string></property></widget></item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="splitTab">
+      <attribute name="title"><string>Splitter</string></attribute>
+      <layout class="QVBoxLayout" name="splitLayout">
+       <item>
+        <widget class="QSplitter" name="split">
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <widget class="QGroupBox" name="leftBox">
+          <property name="title"><string>Left</string></property>
+          <layout class="QVBoxLayout" name="leftLayout">
+           <item><widget class="QLabel" name="leftLbl"><property name="text"><string>Pane A</string></property></widget></item>
+          </layout>
+         </widget>
+         <widget class="QGroupBox" name="rightBox">
+          <property name="title"><string>Right</string></property>
+          <layout class="QVBoxLayout" name="rightLayout">
+           <item><widget class="QLabel" name="rightLbl"><property name="text"><string>Pane B</string></property></widget></item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item><widget class="Line" name="rule"><property name="orientation"><enum>Qt::Horizontal</enum></property></widget></item>
+       <item>
+        <layout class="QHBoxLayout" name="row">
+         <item><widget class="QToolButton" name="tb1"><property name="text"><string>A</string></property></widget></item>
+         <item><widget class="QToolButton" name="tb2"><property name="text"><string>B</string></property></widget></item>
+         <item><spacer name="spc"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint"><size><width>40</width><height>20</height></size></property></spacer></item>
+         <item><widget class="QPushButton" name="ok"><property name="text"><string>Apply</string></property></widget></item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+</ui>

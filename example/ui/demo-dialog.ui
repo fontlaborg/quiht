@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DemoDialog</class>
+ <widget class="QDialog" name="DemoDialog">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>360</width><height>260</height></rect>
+  </property>
+  <property name="windowTitle"><string>Asset Tag Builder</string></property>
+  <property name="statusTip"><string>@demo.dialog.title</string></property>
+  <layout class="QVBoxLayout" name="dialogLayout">
+   <property name="leftMargin"><number>18</number></property>
+   <property name="topMargin"><number>18</number></property>
+   <property name="rightMargin"><number>18</number></property>
+   <property name="bottomMargin"><number>14</number></property>
+   <property name="spacing"><number>12</number></property>
+   <item>
+    <layout class="QHBoxLayout" name="tagRow">
+     <property name="spacing"><number>6</number></property>
+     <item>
+      <widget class="QLabel" name="labelAsset">
+       <property name="text"><string>Asset</string></property>
+       <property name="statusTip"><string>@demo.dialog.labelAsset</string></property>
+       <property name="styleSheet"><string notr="true">QLabel{font-weight:bold;}</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="YSelector" name="selectorKind">
+       <property name="text"><string>tag</string></property>
+       <property name="statusTip"><string>@demo.dialog.selectorKind</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelColon">
+       <property name="text"><string>:</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="tagValue">
+       <property name="placeholderText"><string>e.g. review-ready</string></property>
+       <property name="statusTip"><string>@demo.dialog.tagValue</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="presetGrid">
+     <property name="spacing"><number>8</number></property>
+     <item row="0" column="0">
+      <widget class="QToolButton" name="presetHero">
+       <property name="toolTip"><string>Hero image</string></property>
+       <property name="text"><string>hero</string></property>
+       <property name="statusTip"><string>@demo.dialog.presetHero</string></property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QToolButton" name="presetDark">
+       <property name="toolTip"><string>Dark variant</string></property>
+       <property name="text"><string>dark</string></property>
+       <property name="statusTip"><string>@demo.dialog.presetDark</string></property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QToolButton" name="presetMono">
+       <property name="toolTip"><string>Monochrome output</string></property>
+       <property name="text"><string>mono</string></property>
+       <property name="statusTip"><string>@demo.dialog.presetMono</string></property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QToolButton" name="presetWide">
+       <property name="toolTip"><string>Wide layout</string></property>
+       <property name="text"><string>wide</string></property>
+       <property name="statusTip"><string>@demo.dialog.presetWide</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="YDarkerWidget" name="previewBand" native="true">
+     <property name="statusTip"><string>@demo.dialog.previewBand</string></property>
+     <layout class="QHBoxLayout" name="previewLayout">
+      <item>
+       <widget class="QLabel" name="previewText">
+        <property name="text"><string>Preview panel area</string></property>
+        <property name="statusTip"><string>@demo.dialog.previewText</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="optionsLayout">
+     <item>
+      <widget class="QCheckBox" name="replaceExisting">
+       <property name="text"><string>Replace existing tags</string></property>
+       <property name="statusTip"><string>@demo.dialog.replaceExisting</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="syncMetadata">
+       <property name="text"><string>Update linked metadata</string></property>
+       <property name="statusTip"><string>@demo.dialog.syncMetadata</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonRow">
+     <item><spacer name="buttonSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item>
+     <item>
+      <widget class="QPushButton" name="buttonCancel">
+       <property name="text"><string>Cancel</string></property>
+       <property name="statusTip"><string>@demo.dialog.buttonCancel</string></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonApply">
+       <property name="text"><string>Apply</string></property>
+       <property name="statusTip"><string>@demo.dialog.buttonApply</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget><class>YSelector</class><extends>QWidget</extends><header>yselector.h</header></customwidget>
+  <customwidget><class>YDarkerWidget</class><extends>QWidget</extends><header>ydarkerwidget.h</header><container>1</container></customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

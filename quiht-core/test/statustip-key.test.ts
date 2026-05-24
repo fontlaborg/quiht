@@ -3,9 +3,9 @@ import { Quiht, render } from "../src/index.js";
 import type { TranslationResolver } from "../src/index.js";
 
 /**
- * FontLab `.ts` convention: a widget whose `statusTip` is `@some.key` and whose
- * `text` is real source uses the `@`-statusTip as the canonical translation key
- * for the text — winning over the synthesized `<name>.text` key.
+ * Common Qt localization convention: a widget whose `statusTip` is `@some.key`
+ * and whose `text` is real source uses the `@`-statusTip as the canonical
+ * translation key for the text, winning over the synthesized `<name>.text` key.
  */
 const UI = `<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
@@ -14,8 +14,8 @@ const UI = `<?xml version="1.0" encoding="UTF-8"?>
   <layout class="QVBoxLayout" name="lay">
    <item>
     <widget class="QLabel" name="lblWidget">
-     <property name="statusTip"><string>@pref_grid.someKey</string></property>
-     <property name="text"><string>Show font dimensions</string></property>
+     <property name="statusTip"><string>@demo.panel.someKey</string></property>
+     <property name="text"><string>Show panel dimensions</string></property>
     </widget>
    </item>
    <item>
@@ -29,7 +29,7 @@ const UI = `<?xml version="1.0" encoding="UTF-8"?>
 
 // translations.json-style entry keyed by the @-statusTip key.
 const translations: Record<string, Record<string, string>> = {
-  "pref_grid.someKey": { en: "Show font dimensions", de: "Schriftdimensionen zeigen" },
+  "demo.panel.someKey": { en: "Show panel dimensions", de: "Panel-Abmessungen zeigen" },
 };
 
 const resolver: TranslationResolver = {
@@ -40,8 +40,8 @@ describe("statusTip=@key convention", () => {
   it("prefers a @-statusTip as the translation key for the widget text", () => {
     const el = render(Quiht.parse(UI), { translationResolver: resolver });
     const widget = el.querySelector("#lblWidget");
-    expect(widget?.getAttribute("data-quiht-key")).toBe("pref_grid.someKey");
-    expect(widget?.textContent).toBe("Schriftdimensionen zeigen");
+    expect(widget?.getAttribute("data-quiht-key")).toBe("demo.panel.someKey");
+    expect(widget?.textContent).toBe("Panel-Abmessungen zeigen");
   });
 
   it("falls back to <name>.text when no @-statusTip is present", () => {

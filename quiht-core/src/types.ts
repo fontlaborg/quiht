@@ -6,7 +6,7 @@ export interface ResourceResolver {
 }
 
 export interface TranslationResolver {
-  /** Resolves a key (e.g. '@dlgnamesuffix.label') or original text to a localized string. */
+  /** Resolves a key (e.g. '@demo.dialog.labelAsset') or original text to a localized string. */
   translate(key: string, originalText: string): string;
 }
 

@@ -54,8 +54,8 @@ describe("buildAst", () => {
     ]);
   });
 
-  it("builds the welcomeform fixture without throwing", () => {
-    const ast = buildAst(parse(exampleUi("welcomeform.ui")));
+  it("builds the demo-start fixture without throwing", () => {
+    const ast = buildAst(parse(exampleUi("demo-start.ui")));
     expect(ast.root.class).toBeTruthy();
   });
 

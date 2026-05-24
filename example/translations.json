@@ -1,134 +1,134 @@
 {
-  "yanglepopup.YAnglePopup": {
-    "en": "Angle Configuration",
-    "de": "Winkelkonfiguration",
-    "fr": "Configuration de l'angle",
-    "ja": "角度設定"
+  "demo.dialog.title": {
+    "en": "Asset Tag Builder",
+    "de": "Asset-Tag-Erstellung",
+    "fr": "Créateur de balises d'asset",
+    "ja": "アセットタグビルダー"
   },
-  "yanglepopup.angleValue": {
-    "en": "Select the glyph rotation angle",
-    "de": "Wählen Sie den Glyphen-Rotationswinkel",
-    "fr": "Sélectionnez l'angle de rotation du glyphe",
-    "ja": "グリフの回転角度を選択"
+  "demo.dialog.labelAsset": {
+    "en": "Asset",
+    "de": "Asset",
+    "fr": "Asset",
+    "ja": "アセット"
   },
-  "yvaluepopup.YValuePopup": {
-    "en": "Value Adjustment",
-    "de": "Wertanpassung",
-    "fr": "Ajustement de la valeur",
-    "ja": "数値調整"
+  "demo.dialog.selectorKind": {
+    "en": "tag",
+    "de": "Tag",
+    "fr": "balise",
+    "ja": "タグ"
   },
-  "yvaluepopup.sliderValue": {
-    "en": "Slide to adjust thickness",
-    "de": "Schieben zum Anpassen der Dicke",
-    "fr": "Faites glisser pour ajuster l'épaisseur",
-    "ja": "スライドして太さを調整"
+  "demo.dialog.tagValue": {
+    "en": "Enter the tag value",
+    "de": "Tag-Wert eingeben",
+    "fr": "Saisir la valeur de balise",
+    "ja": "タグ値を入力"
   },
-  "dlgnamesuffix.DlgNameSuffix": {
-    "en": "Glyph Name Suffix",
-    "de": "Glyphennamen-Suffix",
-    "fr": "Suffixe du nom de glyphe",
-    "ja": "グリフ名サフィックス"
+  "demo.dialog.presetHero": {
+    "en": "hero",
+    "de": "Hero",
+    "fr": "hero",
+    "ja": "ヒーロー"
   },
-  "dlgnamesuffix.DlgNameSuffix.windowTitle": {
-    "en": "Glyph Name Suffix Editor",
-    "de": "Editor für Glyphennamen-Suffixe",
-    "fr": "Éditeur de suffixe de nom de glyphe",
-    "ja": "グリフ名サフィックスエディタ"
+  "demo.dialog.presetDark": {
+    "en": "dark",
+    "de": "Dunkel",
+    "fr": "sombre",
+    "ja": "ダーク"
   },
-  "dlgnamesuffix.label": {
-    "en": "Name Suffix Pattern:",
-    "de": "Muster für Namenssuffix:",
-    "fr": "Modèle de suffixe de nom:",
-    "ja": "名前サフィックスパターン:"
+  "demo.dialog.presetMono": {
+    "en": "mono",
+    "de": "Mono",
+    "fr": "mono",
+    "ja": "モノ"
   },
-  "dlgnamesuffix.label_2": {
-    "en": "Apply suffix to selected glyphs:",
-    "de": "Suffix auf ausgewählte Glyphen anwenden:",
-    "fr": "Appliquer le suffixe aux glyphes sélectionnés:",
-    "ja": "選択したグリフにサフィックスを適用:"
+  "demo.dialog.presetWide": {
+    "en": "wide",
+    "de": "Breit",
+    "fr": "large",
+    "ja": "ワイド"
   },
-  "dlgnamesuffix.valueSuffix.placeholderText": {
-    "en": "e.g., .alt or .sc",
-    "de": "z.B. .alt oder .sc",
-    "fr": "par ex. .alt ou .sc",
-    "ja": "例: .alt または .sc"
+  "demo.dialog.previewText": {
+    "en": "Preview panel area",
+    "de": "Vorschaubereich",
+    "fr": "Zone d'aperçu",
+    "ja": "プレビューパネル領域"
   },
-  "dlgnamesuffix.checkReplace": {
-    "en": "Replace existing suffixes",
-    "de": "Bestehende Suffixe ersetzen",
-    "fr": "Remplacer les suffixes existants",
-    "ja": "既存のサフィックスを置き換える"
+  "demo.dialog.replaceExisting": {
+    "en": "Replace existing tags",
+    "de": "Vorhandene Tags ersetzen",
+    "fr": "Remplacer les balises existantes",
+    "ja": "既存のタグを置換"
   },
-  "dlgnamesuffix.checkLastSegment": {
-    "en": "Apply rule only on the last dot-separated segment",
-    "de": "Regel nur auf das letzte durch Punkte getrennte Segment anwenden",
-    "fr": "Appliquer la règle uniquement sur le dernier segment séparé par des points",
-    "ja": "ドットで区切られた最後のセグメントにのみルールを適用する"
+  "demo.dialog.syncMetadata": {
+    "en": "Update linked metadata",
+    "de": "Verknüpfte Metadaten aktualisieren",
+    "fr": "Mettre à jour les métadonnées liées",
+    "ja": "リンクされたメタデータを更新"
   },
-  "dlgnamesuffix.checkSmartReplace": {
-    "en": "Smart renaming (keep composite references)",
-    "de": "Intelligente Umbenennung (Komponentenzuordnungen beibehalten)",
-    "fr": "Renommage intelligent (conserver les références composites)",
-    "ja": "スマートリネーム（複合参照を保持）"
-  },
-  "dlgnamesuffix.buttonCancel": {
+  "demo.dialog.buttonCancel": {
     "en": "Cancel",
     "de": "Abbrechen",
     "fr": "Annuler",
     "ja": "キャンセル"
   },
-  "dlgnamesuffix.buttonOK": {
-    "en": "OK",
-    "de": "OK",
-    "fr": "OK",
-    "ja": "OK"
+  "demo.dialog.buttonApply": {
+    "en": "Apply",
+    "de": "Anwenden",
+    "fr": "Appliquer",
+    "ja": "適用"
   },
-  "welcomeform.WelcomeForm": {
-    "en": "Welcome Screen",
-    "de": "Willkommensbildschirm",
-    "fr": "Écran d'accueil",
-    "ja": "ウェルカム画面"
+  "demo.start.title": {
+    "en": "Project Starter",
+    "de": "Projektstarter",
+    "fr": "Démarrage de projet",
+    "ja": "プロジェクトスターター"
   },
-  "welcomeform.WelcomeForm.windowTitle": {
-    "en": "Welcome to FontLab",
-    "de": "Willkommen bei FontLab",
-    "fr": "Bienvenue dans FontLab",
-    "ja": "FontLab へようこそ"
+  "demo.start.newButton": {
+    "en": "Create a clean demo workspace",
+    "de": "Sauberen Demo-Arbeitsbereich erstellen",
+    "fr": "Créer un espace de démonstration propre",
+    "ja": "クリーンなデモワークスペースを作成"
   },
-  "welcomeform.newButton": {
-    "en": "Create a new font project from scratch",
-    "de": "Erstellen Sie ein neues Schriftartprojekt",
-    "fr": "Créer un nouveau projet de police à partir de zéro",
-    "ja": "新規フォントプロジェクトを最初から作成"
+  "demo.start.openButton": {
+    "en": "Load an existing demo package",
+    "de": "Vorhandenes Demo-Paket laden",
+    "fr": "Charger un package de démonstration",
+    "ja": "既存のデモパッケージを読み込む"
   },
-  "welcomeform.newButton.text": {
-    "en": "New Font...",
-    "de": "Neue Schrift...",
-    "fr": "Nouvelle police...",
-    "ja": "新規フォント..."
+  "demo.start.recentLabel": {
+    "en": "Recent demo packages:",
+    "de": "Letzte Demo-Pakete:",
+    "fr": "Packages de démonstration récents :",
+    "ja": "最近のデモパッケージ:"
   },
-  "welcomeform.openButton": {
-    "en": "Open an existing font file from disk",
-    "de": "Öffnen Sie eine vorhandene Schriftdatei von der Festplatte",
-    "fr": "Ouvrir un fichier de police existant depuis le disque",
-    "ja": "既存のフォントファイルをディスクから開く"
+  "demo.start.recentSample": {
+    "en": "Generated demo fixture with generic controls",
+    "de": "Generiertes Demo-Fixture mit generischen Steuerelementen",
+    "fr": "Fixture de démonstration généré avec contrôles génériques",
+    "ja": "汎用コントロールを含む生成済みデモフィクスチャ"
   },
-  "welcomeform.openButton.text": {
-    "en": "Open Font...",
-    "de": "Schrift öffnen...",
-    "fr": "Ouvrir la police...",
-    "ja": "フォントを開く..."
+  "demo.angle.title": {
+    "en": "Angle Control",
+    "de": "Winkelsteuerung",
+    "fr": "Contrôle d'angle",
+    "ja": "角度コントロール"
   },
-  "welcomeform.label": {
-    "en": "Recent fonts opened:",
-    "de": "Zuletzt geöffnete Schriften:",
-    "fr": "Polices récemment ouvertes:",
-    "ja": "最近開いたフォント:"
+  "demo.angle.angleValue": {
+    "en": "Select a preview rotation angle",
+    "de": "Vorschau-Drehwinkel auswählen",
+    "fr": "Sélectionner un angle de rotation d'aperçu",
+    "ja": "プレビュー回転角度を選択"
   },
-  "welcomeform.filesScroll": {
-    "en": "Scroll to see full file path details",
-    "de": "Scrollen, um den vollständigen Dateipfad anzuzeigen",
-    "fr": "Faites défiler pour voir le chemin d'accès complet du fichier",
-    "ja": "スクロールして完全なファイルパスを表示"
+  "demo.slider.title": {
+    "en": "Value Slider",
+    "de": "Wertschieberegler",
+    "fr": "Curseur de valeur",
+    "ja": "値スライダー"
+  },
+  "demo.slider.sliderValue": {
+    "en": "Adjust the preview intensity",
+    "de": "Vorschauintensität anpassen",
+    "fr": "Ajuster l'intensité d'aperçu",
+    "ja": "プレビュー強度を調整"
   }
 }

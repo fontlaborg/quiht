@@ -8,11 +8,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The repo has four packages plus an example dataset and the built demo:
 
-- **`quiht-core/`** — the renderer + bundle loader. A **TypeScript** npm package (`quiht-core`) under `src/`, built with `tsc` → `dist/`, dependency `fflate`. Exports `Quiht.parse`/`Quiht.render`, the `render`/`parse` functions, `loadBundle`, and the `fontlabPreset` custom-renderer map. The `Quiht` class preserves the original static API; everything else consumes it. (The earlier single-file `quiht-core/quiht-core.js` has been deleted; design notes live in `docs/design/quiht-core-RESEARCH.md`.)
+- **`quiht-core/`** — the renderer + bundle loader. A **TypeScript** npm package (`quiht-core`) under `src/`, built with `tsc` → `dist/`, dependency `fflate`. Exports `Quiht.parse`/`Quiht.render`, the `render`/`parse` functions, `loadBundle`, and the `customWidgetPreset` custom-renderer map. The `Quiht` class preserves the original static API; everything else consumes it. (The earlier single-file `quiht-core/quiht-core.js` has been deleted; design notes live in `docs/design/quiht-core-RESEARCH.md`.)
 - **`quiht-l10n-vu/`** — the three-pane localization reviewer SPA. A **TypeScript** npm package (`quiht-l10n-vu`) built with **Vite**. Imports `quiht-core`, loads its dataset via `loadBundle` (default example, or any dropped/picked `.quiht.zip` / `.quiht.json` / `.ui`).
 - **`quiht-demo/`** — source of the static drag-and-drop demo (Vite + TS). Builds into the repo's `docs/` for GitHub Pages (https://fontlab.org/quiht/). Not published to npm.
 - **`quiht-tools/`** — a **Python** package (`quiht-tools`, PyPI) with a Fire CLI: `generate` emits a `.quiht.json` manifest from a Qt source tree, `pack`/`unpack` build and extract `.quiht.zip` packages. Versioned via `hatch-vcs` from git tags.
-- **`example/`** — sample `.ui` files (from FontLab's Proteus codebase), their resources, the `.quiht.json`, and `translations.json`. The canonical fixtures; `build.sh` vendors copies into the demo and reviewer.
+- **`example/`** — synthetic demo `.ui` files, generic resources, `.quiht.json`, `translations.json`, and `demo.quiht.zip`. These fixtures intentionally exercise realistic Qt/custom-widget constructs without bundling proprietary application screens or copied source assets; `build.sh` vendors copies into the demo and reviewer.
 - **`docs/`** — the built static demo (committed build output served by Pages).
 
 > Note: `SPEC.md` files describe design intent. The implementation is now real TypeScript with build steps and tests — treat the TS sources as ground truth.
@@ -23,7 +23,7 @@ Everything builds via the top-level scripts:
 
 ```bash
 ./build.sh            # builds quiht-core, quiht-l10n-vu, quiht-demo (->docs/), quiht-tools
-./publish.sh          # DRY RUN by default; ./publish.sh --yes to publish to PyPI + npm
+./publish.sh          # real release: build, gitnextver commit/tag/push, PyPI + npm
 ```
 
 Per package:
@@ -58,7 +58,7 @@ The renderer is TypeScript under `quiht-core/src/`, compiled to `dist/` by `tsc`
 - **`src/render.ts`** — `render(doc, options) → HTMLElement` plus `renderWidget`, `renderLayout`, and `injectStyleSheets`.
 - **`src/types.ts`** — public type definitions (`RenderOptions`, resolvers, `QuihtBundle`, etc.).
 - **`src/bundle.ts`** — `loadBundle`/`loadZipBundle`/`loadManifestBundle`/`loadUiString`.
-- **`src/presets/fontlab.ts`** — the optional `fontlabPreset` `customRenderers` map covering common FontLab `Y*` custom widgets.
+- **`src/presets/custom-widgets.ts`** — the optional `customWidgetPreset` `customRenderers` map covering supported `Y*`/`Qt*` custom widgets.
 - **`src/index.ts`** — public entry point; re-exports the above and the `Quiht` static façade (`Quiht.parse`/`Quiht.render`) which preserves the original static API.
 
 Rendering is a recursive tree walk:
@@ -68,7 +68,7 @@ Rendering is a recursive tree walk:
 Three extension hooks passed via `options` (`RenderOptions`):
 - `resourceResolver.resolveResource(qrcPath)` — maps a Qt resource path like `:/images/resources/open.png` to a real URL.
 - `translationResolver.translate(key, originalText)` — returns localized text.
-- `customRenderers[className](node, options)` — overrides rendering for unknown/custom widget classes (e.g. FontLab's `YSelector`). Without an override, unknown classes fall back to a dotted-border placeholder `div`. The shipped `fontlabPreset` is a ready-made map for the common Proteus `Y*` widgets.
+- `customRenderers[className](node, options)` — overrides rendering for unknown/custom widget classes (e.g. `YSelector`). Without an override, unknown classes fall back to a dotted-border placeholder `div`. The shipped `customWidgetPreset` is a ready-made map for supported `Y*`/`Qt*` widgets.
 
 **QSS handling:** `injectStyleSheets` collects every `styleSheet` property in the file, does a *regex* rewrite of Qt class selectors to CSS classes (`QLabel` → `.QLabel`) and converts `qlineargradient(...)` → `linear-gradient(...)`, then injects one `<style id="quiht-injected-stylesheets">` into the target document's `<head>` (`options.targetDocument`, defaulting to the rendered element's `ownerDocument` — SSR-friendly). This is best-effort string transformation, not a real QSS parser.
 
@@ -96,13 +96,14 @@ Provides the Qt-Fusion-like appearance via CSS variables and the `.QWidget`/`.Q*
 
 - **Manifest (`.quiht.json`):** `{ prefix, ui: {name → relPath}, resources: {qrcPath → relPath} }`. Paths in `ui`/`resources` are relative to the manifest/archive root; `loadBundle` resolves them (URLs relative to the manifest, or object URLs for in-zip resources). (The `prefix` field is written by the generator but not currently consumed.)
 - **`.quiht.zip`:** a ZIP whose root holds `.quiht.json` + `ui/` + `resources/` (+ optional `translations.json`). Built by `quiht-tools pack`; loaded by `quiht-core loadBundle`.
-- **Resource keys** in the manifest are the *raw* Qt paths (`:/images/resources/document_open.png`), which is exactly what `_getProperty` returns for an `iconset` — so the resolver can look them up directly.
-- The generator hardcodes a couple of Proteus-specific filename remaps (`document_open.png`→`file_open.png`, `document_new.png`→`new.png`); these are dataset quirks, not general logic.
+- **Resource keys** in the manifest are the *raw* Qt paths (`:/demo/resources/open.png`), which is exactly what `_getProperty` returns for an `iconset` — so the resolver can look them up directly.
+- The generator should remain dataset-agnostic: it copies resources referenced by
+  `.ui` files and must not invent product-specific filename remaps.
 
 ## When extending
 
 - **New widget type:** add a `case` in `renderWidget` (`quiht-core/src/render.ts`). Emit `class="<QtClass> QWidget"` and add matching styling to `quiht-core/index.css`, plus a focused vitest under `quiht-core/test/`. If it carries localizable text, set the `quiht-translatable-node` class + `data-quiht-*` attributes the way the existing cases do, and add the property to `extractTranslatableItems` in the l10n app (`quiht-l10n-vu/src/main.ts`).
-- **Custom/non-standard widgets:** prefer `options.customRenderers` over editing the core switch. The `fontlabPreset` (`quiht-core/src/presets/fontlab.ts`) is the canonical example for FontLab's `Y*` widgets.
+- **Custom/non-standard widgets:** prefer `options.customRenderers` over editing the core switch. The `customWidgetPreset` (`quiht-core/src/presets/custom-widgets.ts`) is the canonical example for supported `Y*`/`Qt*` widgets.
 - The two SPEC files are the place to record API intent; update them alongside behavior changes.
 
 

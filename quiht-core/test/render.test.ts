@@ -10,8 +10,8 @@ const exampleUi = (name: string) =>
   readFileSync(resolve(here, "../../example/ui", name), "utf8");
 
 describe("render", () => {
-  it("renders the dlgnamesuffix dialog with expected widgets", () => {
-    const doc = Quiht.parse(exampleUi("dlgnamesuffix.ui"));
+  it("renders the demo dialog with expected widgets", () => {
+    const doc = Quiht.parse(exampleUi("demo-dialog.ui"));
     const el = render(doc);
 
     // Root QDialog.
@@ -32,14 +32,14 @@ describe("render", () => {
     expect(el.getAttribute("data-q-class")).toBe("QDialog");
   });
 
-  it("renders welcomeform with a scroll area", () => {
-    const doc = Quiht.parse(exampleUi("welcomeform.ui"));
+  it("renders the start screen with a scroll area", () => {
+    const doc = Quiht.parse(exampleUi("demo-start.ui"));
     const el = render(doc);
     expect(el.querySelector(".QScrollArea")).not.toBeNull();
   });
 
   it("uses a custom renderer when provided", () => {
-    const doc = Quiht.parse(exampleUi("dlgnamesuffix.ui"));
+    const doc = Quiht.parse(exampleUi("demo-dialog.ui"));
     const options: RenderOptions = {
       customRenderers: {
         YSelector: (_node, _opts) => {

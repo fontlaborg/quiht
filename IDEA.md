@@ -34,7 +34,9 @@ Into ./quiht/quiht-l10n-vu/SPEC.md write a spec for a web app that is intended f
 
 ## Task 003.4
 
-Copy .ui + associated icon files from the ./fontlab/Proteus/ codebase into ./quiht/example/ 
+Create a synthetic demo dataset in `./quiht/example/` that exercises realistic
+Qt `.ui` constructs and custom widgets without bundling proprietary application
+screens or copied source assets.
 
 Into ./quiht/quiht-tools/quiht-jsongen.py write a small Fire CLI app that will generate the .quiht.json from a provided file structure of .ui and .png etc. files, plus a provided URL prefix. The idea is that the .quiht.json file serves as a map that points to URLs of these .ui + .png files from which quiht can assemble the layout.
 
@@ -51,4 +53,3 @@ Verify the implementation.
 Iterate, review, refine, reverify. 
 
 Iterate until all is perfect. 
-

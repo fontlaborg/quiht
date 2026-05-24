@@ -14,10 +14,10 @@ The application is structured as a single-page app (SPA) with a responsive three
 +---------------------+-------------------------------------+----------------------+
 |  Sidebar (.ui list) |  Center Pane (Visual Render)        |  Right Pane (Grid)   |
 |                     |                                     |                      |
-|  - dlgabout.ui      |  +-------------------------------+  |  Key      | Source   |
-|  - dlgnamesuffix.ui |  |  Dialog Title                 |  |  ---------+----------|
-|  - welcomeform.ui   |  |                               |  |  label    | Name     |
-|                     |  |  [Name ] [Input            ]  |  |  selector | Suffix   |
+|  - demo-dialog.ui   |  +-------------------------------+  |  Key      | Source   |
+|  - demo-start.ui    |  |  Dialog Title                 |  |  ---------+----------|
+|  - demo-slider.ui   |  |                               |  |  label    | Asset    |
+|                     |  |  [Asset] [Input           ]   |  |  selector | Tag      |
 |                     |  |                               |  |                      |
 |                     |  |  [ Cancel ] [ OK ]            |  |                      |
 |                     |  +-------------------------------+  |                      |
@@ -38,7 +38,7 @@ The application is structured as a single-page app (SPA) with a responsive three
 - A table listing all translatable items in the selected `.ui` file.
 - Columns:
   - **Type**: Indicator (e.g., Text, ToolTip, StatusTip, Title).
-  - **Key / Path**: The Qt property name or ID (e.g. `@dlgnamesuffix.label`).
+  - **Key / Path**: The Qt property name or ID (e.g. `@demo.dialog.labelAsset`).
   - **English (Source)**: The default English text.
   - **Target Translation**: The translated value in the selected language.
 
@@ -65,11 +65,11 @@ The app consumes two datasets:
    Example:
    ```json
    {
-     "dlgnamesuffix.label": {
-       "en": "Name ",
-       "de": "Name ",
-       "fr": "Nom ",
-       "ja": "名前 "
+     "demo.dialog.labelAsset": {
+       "en": "Asset",
+       "de": "Asset",
+       "fr": "Asset",
+       "ja": "アセット"
      }
    }
    ```

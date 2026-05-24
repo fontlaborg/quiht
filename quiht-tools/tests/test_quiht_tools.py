@@ -52,8 +52,8 @@ def test_generate_produces_valid_manifest(tmp_path: Path) -> None:
     assert (dest / "resources" / "open.png").is_file()
 
 
-def test_generate_no_fontlab_hardcodes(tmp_path: Path) -> None:
-    """The generic generator must not invent FontLab-specific remaps."""
+def test_generate_no_product_hardcodes(tmp_path: Path) -> None:
+    """The generic generator must not invent product-specific remaps."""
     src = tmp_path / "src"
     (src / "ui").mkdir(parents=True)
     (src / "images").mkdir(parents=True)

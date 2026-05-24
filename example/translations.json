@@ -1,0 +1,134 @@
+{
+  "yanglepopup.YAnglePopup": {
+    "en": "Angle Configuration",
+    "de": "Winkelkonfiguration",
+    "fr": "Configuration de l'angle",
+    "ja": "角度設定"
+  },
+  "yanglepopup.angleValue": {
+    "en": "Select the glyph rotation angle",
+    "de": "Wählen Sie den Glyphen-Rotationswinkel",
+    "fr": "Sélectionnez l'angle de rotation du glyphe",
+    "ja": "グリフの回転角度を選択"
+  },
+  "yvaluepopup.YValuePopup": {
+    "en": "Value Adjustment",
+    "de": "Wertanpassung",
+    "fr": "Ajustement de la valeur",
+    "ja": "数値調整"
+  },
+  "yvaluepopup.sliderValue": {
+    "en": "Slide to adjust thickness",
+    "de": "Schieben zum Anpassen der Dicke",
+    "fr": "Faites glisser pour ajuster l'épaisseur",
+    "ja": "スライドして太さを調整"
+  },
+  "dlgnamesuffix.DlgNameSuffix": {
+    "en": "Glyph Name Suffix",
+    "de": "Glyphennamen-Suffix",
+    "fr": "Suffixe du nom de glyphe",
+    "ja": "グリフ名サフィックス"
+  },
+  "dlgnamesuffix.DlgNameSuffix.windowTitle": {
+    "en": "Glyph Name Suffix Editor",
+    "de": "Editor für Glyphennamen-Suffixe",
+    "fr": "Éditeur de suffixe de nom de glyphe",
+    "ja": "グリフ名サフィックスエディタ"
+  },
+  "dlgnamesuffix.label": {
+    "en": "Name Suffix Pattern:",
+    "de": "Muster für Namenssuffix:",
+    "fr": "Modèle de suffixe de nom:",
+    "ja": "名前サフィックスパターン:"
+  },
+  "dlgnamesuffix.label_2": {
+    "en": "Apply suffix to selected glyphs:",
+    "de": "Suffix auf ausgewählte Glyphen anwenden:",
+    "fr": "Appliquer le suffixe aux glyphes sélectionnés:",
+    "ja": "選択したグリフにサフィックスを適用:"
+  },
+  "dlgnamesuffix.valueSuffix.placeholderText": {
+    "en": "e.g., .alt or .sc",
+    "de": "z.B. .alt oder .sc",
+    "fr": "par ex. .alt ou .sc",
+    "ja": "例: .alt または .sc"
+  },
+  "dlgnamesuffix.checkReplace": {
+    "en": "Replace existing suffixes",
+    "de": "Bestehende Suffixe ersetzen",
+    "fr": "Remplacer les suffixes existants",
+    "ja": "既存のサフィックスを置き換える"
+  },
+  "dlgnamesuffix.checkLastSegment": {
+    "en": "Apply rule only on the last dot-separated segment",
+    "de": "Regel nur auf das letzte durch Punkte getrennte Segment anwenden",
+    "fr": "Appliquer la règle uniquement sur le dernier segment séparé par des points",
+    "ja": "ドットで区切られた最後のセグメントにのみルールを適用する"
+  },
+  "dlgnamesuffix.checkSmartReplace": {
+    "en": "Smart renaming (keep composite references)",
+    "de": "Intelligente Umbenennung (Komponentenzuordnungen beibehalten)",
+    "fr": "Renommage intelligent (conserver les références composites)",
+    "ja": "スマートリネーム（複合参照を保持）"
+  },
+  "dlgnamesuffix.buttonCancel": {
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "fr": "Annuler",
+    "ja": "キャンセル"
+  },
+  "dlgnamesuffix.buttonOK": {
+    "en": "OK",
+    "de": "OK",
+    "fr": "OK",
+    "ja": "OK"
+  },
+  "welcomeform.WelcomeForm": {
+    "en": "Welcome Screen",
+    "de": "Willkommensbildschirm",
+    "fr": "Écran d'accueil",
+    "ja": "ウェルカム画面"
+  },
+  "welcomeform.WelcomeForm.windowTitle": {
+    "en": "Welcome to FontLab",
+    "de": "Willkommen bei FontLab",
+    "fr": "Bienvenue dans FontLab",
+    "ja": "FontLab へようこそ"
+  },
+  "welcomeform.newButton": {
+    "en": "Create a new font project from scratch",
+    "de": "Erstellen Sie ein neues Schriftartprojekt",
+    "fr": "Créer un nouveau projet de police à partir de zéro",
+    "ja": "新規フォントプロジェクトを最初から作成"
+  },
+  "welcomeform.newButton.text": {
+    "en": "New Font...",
+    "de": "Neue Schrift...",
+    "fr": "Nouvelle police...",
+    "ja": "新規フォント..."
+  },
+  "welcomeform.openButton": {
+    "en": "Open an existing font file from disk",
+    "de": "Öffnen Sie eine vorhandene Schriftdatei von der Festplatte",
+    "fr": "Ouvrir un fichier de police existant depuis le disque",
+    "ja": "既存のフォントファイルをディスクから開く"
+  },
+  "welcomeform.openButton.text": {
+    "en": "Open Font...",
+    "de": "Schrift öffnen...",
+    "fr": "Ouvrir la police...",
+    "ja": "フォントを開く..."
+  },
+  "welcomeform.label": {
+    "en": "Recent fonts opened:",
+    "de": "Zuletzt geöffnete Schriften:",
+    "fr": "Polices récemment ouvertes:",
+    "ja": "最近開いたフォント:"
+  },
+  "welcomeform.filesScroll": {
+    "en": "Scroll to see full file path details",
+    "de": "Scrollen, um den vollständigen Dateipfad anzuzeigen",
+    "fr": "Faites défiler pour voir le chemin d'accès complet du fichier",
+    "ja": "スクロールして完全なファイルパスを表示"
+  }
+}

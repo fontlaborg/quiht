@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiht Localization Reviewer</title>
+  <link rel="stylesheet" href="../quiht-core/index.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="app-title-group">
+      <div class="app-logo">QUIHT</div>
+      <div class="app-logo-badge">L10N VU</div>
+    </div>
+    
+    <div class="app-controls">
+      <!-- Statistics tags -->
+      <div class="stat-tag" id="stat-total">Total Keys: <span>0</span></div>
+      <div class="stat-tag" id="stat-translated">Translated: <span>0</span></div>
+      
+      <!-- Language Selector -->
+      <div class="lang-selector-group">
+        <label for="lang-select">Target Language:</label>
+        <select id="lang-select" class="app-select">
+          <option value="de">Deutsch (DE)</option>
+          <option value="fr">Français (FR)</option>
+          <option value="ja">日本語 (JA)</option>
+          <option value="en">English (EN - Source)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Container (Sidebar + Canvas + Grid) -->
+  <div class="app-container">
+    
+    <!-- Left Sidebar (.ui file navigator) -->
+    <aside class="app-sidebar">
+      <div class="panel-header">UI Files</div>
+      <ul class="ui-list" id="ui-files-list">
+        <!-- populated dynamically -->
+        <li class="ui-item active">Loading UI files...</li>
+      </ul>
+    </aside>
+
+    <!-- Center Canvas (Visual Render) -->
+    <main class="app-canvas-pane">
+      <div class="canvas-toolbar">
+        <div class="canvas-title" id="canvas-active-title">
+          <span>welcomeform.ui</span>
+        </div>
+        <div class="theme-switch-group">
+          <button class="theme-btn active" id="theme-light">Fusion Light</button>
+          <button class="theme-btn" id="theme-dark">Fusion Dark</button>
+        </div>
+      </div>
+      
+      <div class="canvas-viewport" id="canvas-viewport">
+        <!-- Rendered widget goes here -->
+        <div id="qt-renderer-root" class="qt-mockup-wrapper">
+          <!-- Populated by quiht-core -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Grid Pane (Translation table) -->
+    <section class="app-grid-pane">
+      <div class="panel-header">Translations Grid</div>
+      <div class="grid-search-container">
+        <input type="text" id="grid-search" class="search-input" placeholder="Search keys or strings...">
+      </div>
+      <div class="grid-table-container">
+        <table class="grid-table">
+          <thead>
+            <tr>
+              <th style="width: 50%;">Key & Type</th>
+              <th style="width: 50%;">Source & Localized</th>
+            </tr>
+          </thead>
+          <tbody id="grid-tbody">
+            <!-- populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Status Bar -->
+  <footer class="app-statusbar" id="app-statusbar">
+    Ready. Hover over layout widgets to view translation details.
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

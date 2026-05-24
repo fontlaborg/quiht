@@ -101,3 +101,29 @@ To handle custom controls (e.g. `YPopupAngle`, `YSelector` from FontLab):
 - It assigns classes: `class="YPopupAngle QWidget"`.
 - It reads custom property declarations if any.
 - A registration API allows registering custom rendering hooks to draw canvas or dials for custom widgets.
+
+---
+
+## 5. Alpine.js compiler (string output)
+
+Beyond the DOM `render()` (live nodes for the review viewer), `compile()` is a
+parallel, SSR-friendly path that turns a `.ui` into an HTML **string** with
+Alpine.js attributes + Web Components, for build-free embedding in HTML-first
+apps (e.g. fog-online).
+
+1. **AST** — `buildAst(doc)` produces a typed `UiRoot` (`WidgetNode`,
+   `LayoutNode`, `Connection`) separating XML traversal from element mapping.
+2. **DOM layer** — Qt classes map to native tags (`QPushButton`→`<button>`,
+   `QLineEdit`→`<input>`, `QProgressBar`→`<progress>`, …) or registered custom
+   elements (`YAngle`→`<q-angle-popup>`); unknown widgets → `<q-widget>` or, with
+   `{ strict: true }`, a compile error.
+3. **State layer** — each input's initial value is collected into one root
+   `x-data="{ … }"` scope; inputs bind with `x-model` (`.number` for spin/slider).
+4. **Behaviour layer** — `<connections>` compile to Alpine events
+   (`@click="$dispatch('…')"` on senders, `@evt.window="…"` on receivers); signals
+   without a DOM equivalent are emitted as inspectable HTML comments.
+5. **CSS layer** — layouts emit `q-vbox/hbox/grid-layout` utilities defined in
+   `alpine.css`, themeable via `--q-*` custom properties.
+6. **Web Components** — `registerQuihtComponents()` defines vanilla elements with
+   a reflected `value` + `input` event (the `x-model` contract). The same `@key`
+   / `<name>.text` localization contract as `render()` applies.

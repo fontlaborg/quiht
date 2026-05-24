@@ -14,6 +14,19 @@ export { parse } from "./parser.js";
 export { render, injectStyleSheets } from "./render.js";
 export { loadBundle, loadZipBundle, loadManifestBundle, loadUiString } from "./bundle.js";
 export { fontlabPreset } from "./presets/fontlab.js";
+export { buildAst, buildWidget, buildConnections } from "./ast.js";
+export type {
+  UiRoot,
+  WidgetNode,
+  LayoutNode,
+  LayoutItem,
+  ItemNode,
+  SpacerNode,
+  Connection,
+} from "./ast.js";
+export { compile, compileWidget, defaultCustomElements } from "./compiler.js";
+export type { CompileOptions } from "./compiler.js";
+export { registerQuihtComponents, QUIHT_COMPONENT_TAGS } from "./webcomponents.js";
 export type {
   ResourceResolver,
   TranslationResolver,

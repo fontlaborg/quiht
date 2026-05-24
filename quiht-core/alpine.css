@@ -1,0 +1,121 @@
+/*
+ * quiht Alpine compiler — production layout & control utilities.
+ *
+ * Pairs with the HTML emitted by `compile()` (compiler.ts). Unlike the
+ * mockup-oriented `index.css` (used by the DOM-renderer review viewer), this
+ * sheet is intentionally minimal and themeable: every colour/space is a CSS
+ * custom property, so a host app (e.g. fog-online) can map its own `--th-*`
+ * tokens onto the `--q-*` variables and inherit its look with no overrides.
+ */
+
+:where(.q-widget, .q-layout, .q-btn, .q-input, .q-select, .q-label) {
+  --q-spacing: 6px;
+  --q-radius: 6px;
+  --q-border: var(--th-border, #c7c7c7);
+  --q-bg-input: var(--th-bg-input, #fff);
+  --q-text: var(--th-text, #1a1a1a);
+  --q-accent: var(--th-accent, #2563eb);
+  box-sizing: border-box;
+  font: inherit;
+  color: var(--q-text);
+}
+
+/* --- Layout layer ----------------------------------------------------- */
+.q-layout {
+  display: flex;
+  gap: var(--q-spacing);
+}
+.q-vbox-layout {
+  flex-direction: column;
+}
+.q-hbox-layout {
+  flex-direction: row;
+  align-items: center;
+}
+.q-grid-layout {
+  display: grid;
+  grid-auto-flow: row;
+}
+.q-grid-cell,
+.q-nested-layout {
+  min-width: 0;
+}
+.q-spacer {
+  flex: 1 1 auto;
+}
+
+/* --- Control layer ---------------------------------------------------- */
+.q-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--q-border);
+  border-radius: var(--q-radius);
+  background: var(--th-bg-panel, #f3f3f3);
+  cursor: pointer;
+}
+.q-btn:hover {
+  border-color: var(--q-accent);
+}
+
+.q-input,
+.q-select {
+  padding: 3px 6px;
+  border: 1px solid var(--q-border);
+  border-radius: var(--q-radius);
+  background: var(--q-bg-input);
+  min-width: 0;
+}
+.q-input:focus,
+.q-select:focus {
+  outline: 2px solid var(--q-accent);
+  outline-offset: -1px;
+}
+
+.q-checkbox,
+.q-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.q-slider {
+  accent-color: var(--q-accent);
+}
+
+.q-progress {
+  width: 100%;
+  height: 14px;
+}
+
+.q-buttonbox {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--q-spacing);
+}
+
+.q-item-view {
+  list-style: none;
+  margin: 0;
+  padding: 2px;
+  border: 1px solid var(--q-border);
+  border-radius: var(--q-radius);
+  background: var(--q-bg-input);
+}
+.q-item-view li {
+  padding: 2px 6px;
+}
+
+.q-groupbox {
+  border: 1px solid var(--q-border);
+  border-radius: var(--q-radius);
+  padding: var(--q-spacing);
+}
+
+/* --- Custom elements -------------------------------------------------- */
+.q-component {
+  display: inline-flex;
+  align-items: center;
+}
+.q-widget {
+  display: block;
+}

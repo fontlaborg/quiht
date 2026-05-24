@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# this_file: build.sh
 # build.sh — build every quiht package: the TS libraries/apps and the Python tool.
 #
 # Idempotent. Run from anywhere; paths are resolved relative to this script.
@@ -17,10 +18,32 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
 section() { printf '\n\033[1;34m==> %s\033[0m\n' "$1"; }
+clean_dir() {
+  local path="$1"
+  if [[ -e "$path" ]]; then
+    rm -rf "$path"
+  fi
+}
+npm_install() {
+  if [[ -f package-lock.json ]]; then
+    npm ci
+  else
+    npm install
+  fi
+}
+
+section "Clean build artifacts"
+clean_dir quiht-core/dist
+clean_dir quiht-l10n-vu/dist
+clean_dir quiht-demo/public/sample.quiht.zip
+clean_dir quiht-tools/build
+clean_dir quiht-tools/dist
+find quiht-tools -maxdepth 2 -name "*.egg-info" -exec rm -rf {} +
+( cd quiht-tools && uvx hatch clean )
 
 # --- 1. quiht-core -----------------------------------------------------------
 section "quiht-core (TypeScript library)"
-( cd quiht-core && npm install && npm run build && npm test )
+( cd quiht-core && npm_install && npm run build && npm test )
 
 # --- Refresh vendored sample data --------------------------------------------
 # The demo + reviewer ship a copy of the example dataset. Refresh it from the
@@ -32,34 +55,37 @@ cp -R example/.quiht.json example/translations.json example/ui example/resources
   quiht-l10n-vu/public/example/
 
 mkdir -p quiht-demo/public
-if command -v uv >/dev/null 2>&1; then
-  ( cd quiht-tools && uv run python -m quiht_tools pack ../example \
-      --output ../quiht-demo/public/sample.quiht.zip --name sample --verbose=False )
-else
-  echo "uv not found; leaving any existing quiht-demo/public/sample.quiht.zip in place"
-fi
+( cd quiht-tools && uv run python -m quiht_tools pack ../example \
+    --output ../quiht-demo/public/sample.quiht.zip --name sample --verbose=False )
 
 # --- 2. quiht-l10n-vu --------------------------------------------------------
 section "quiht-l10n-vu (TypeScript reviewer SPA)"
-( cd quiht-l10n-vu && npm install && npm run build && npm test )
+( cd quiht-l10n-vu && npm_install && npm run build && npm test )
 
 # --- 3. quiht-demo -> docs ---------------------------------------------------
 section "quiht-demo (static demo -> docs/)"
-( cd quiht-demo && npm install && npm run build )
+DOCS_DESIGN_BACKUP="$(mktemp -d)"
+if [[ -d docs/design ]]; then
+  mkdir -p "$DOCS_DESIGN_BACKUP/design"
+  cp -R docs/design/. "$DOCS_DESIGN_BACKUP/design/"
+fi
+restore_docs_design() {
+  if [[ -d "$DOCS_DESIGN_BACKUP/design" ]]; then
+    mkdir -p docs/design
+    cp -R "$DOCS_DESIGN_BACKUP/design/." docs/design/
+  fi
+  rm -rf "$DOCS_DESIGN_BACKUP"
+}
+if ! ( cd quiht-demo && npm_install && npm run build ); then
+  restore_docs_design
+  exit 1
+fi
+restore_docs_design
 
 # --- 4. quiht-tools ----------------------------------------------------------
 section "quiht-tools (Python package)"
 (
   cd quiht-tools
-  uvx hatch clean || true
-  # gitnextver is optional; never fail the build if it is missing.
-  if command -v gitnextver >/dev/null 2>&1; then
-    gitnextver . || echo "gitnextver returned non-zero; continuing"
-  elif uvx --help >/dev/null 2>&1 && uvx gitnextver --help >/dev/null 2>&1; then
-    uvx gitnextver . || echo "uvx gitnextver returned non-zero; continuing"
-  else
-    echo "gitnextver not available; skipping (version comes from git tags via hatch-vcs)"
-  fi
   uv build
 )
 

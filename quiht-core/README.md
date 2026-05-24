@@ -123,6 +123,45 @@ On load, each in-zip resource is exposed as an object URL (or a data URL when
 `resourceResolver` maps the manifest's qrc keys to those URLs. Unzipping uses
 [`fflate`](https://github.com/101arrowz/fflate).
 
+## Alpine.js compiler (build-free embedding)
+
+Alongside the DOM `render()` (which produces live nodes for the localization
+viewer), `compile()` turns a `.ui` into an **HTML string** enriched with
+[Alpine.js](https://alpinejs.dev/) attributes and Web Components. This is the
+path for dropping Qt UIs into any HTML-first app with **no React/TypeScript/Vite
+build** — just Alpine from a CDN and the compiled markup.
+
+```ts
+import { compile, parse, registerQuihtComponents } from "quiht-core";
+import "quiht-core/alpine.css";
+
+registerQuihtComponents();            // defines <q-angle-popup> etc. (once)
+const html = compile(parse(uiXml));   // Alpine-ready HTML string
+document.getElementById("host").innerHTML = html;
+// then: Alpine.start()  (or include alpinejs via <script defer>)
+```
+
+What it emits:
+
+- **DOM layer** — Qt classes map to native tags (`QPushButton`→`<button>`,
+  `QLineEdit`→`<input>`, `QProgressBar`→`<progress>`, …) or to registered custom
+  elements (`YAngle`→`<q-angle-popup>`). Unknown widgets become `<q-widget>` (or
+  throw under `{ strict: true }`).
+- **State layer** — every input's initial value is collected into one root
+  `x-data="{ … }"` scope and bound with `x-model`.
+- **Behaviour layer** — `<connections>` compile to Alpine events: senders get
+  `@click="$dispatch('…')"`, receivers listen with `@evt.window="…"`. Signals
+  with no DOM equivalent (`accepted()`/`rejected()`) are emitted as inspectable
+  HTML comments.
+- **CSS layer** — layouts become `q-vbox-layout`/`q-hbox-layout`/`q-grid-layout`
+  flex/grid utilities defined in `quiht-core/alpine.css`, themeable via `--q-*`
+  (and inheriting fog-online's `--th-*`) custom properties.
+
+`registerQuihtComponents()` defines vanilla custom elements that expose a
+reflected `value` and emit `input` — exactly the contract `x-model` binds to.
+
+See `docs/design/fog-online.md` for the integration contract.
+
 ## Versioning
 
 This package uses **git-tag semver**. `package.json` keeps `"version": "0.0.0"`

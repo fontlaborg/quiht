@@ -1,27 +1,32 @@
 /**
- * quiht demo — drag-and-drop a Qt `.ui`, `.quiht.json`, or `.quiht.zip` and
- * see it rendered via quiht-core. Pure static client-side app (no server).
+ * quiht demo — drag-and-drop a Qt `.ui`, `.quiht.json`, or `.quiht.zip`, or load
+ * one of the bundled FontLab examples, and see it rendered via quiht-core.
+ * Pure static client-side app (no server).
  */
 
 import "quiht-core/index.css";
 import "./demo.css";
 
-import { render, loadBundle, type QuihtBundle } from "quiht-core";
-
-/** A vendored sample bundle (copied into the build by Vite from public/). */
-const SAMPLE_BUNDLE = "./sample.quiht.zip";
+import { render, loadBundle, fontlabPreset, type QuihtBundle } from "quiht-core";
 
 const dropzone = byId<HTMLElement>("dropzone");
 const fileInput = byId<HTMLInputElement>("file-input");
-const sampleBtn = byId<HTMLButtonElement>("sample-btn");
 const errorEl = byId<HTMLDivElement>("error");
 const resultEl = byId<HTMLElement>("result");
 const resultMetaEl = byId<HTMLSpanElement>("result-meta");
 const tabsEl = byId<HTMLElement>("ui-tabs");
 const renderRootEl = byId<HTMLDivElement>("render-root");
 const themeToggle = byId<HTMLButtonElement>("theme-toggle");
+const galleryEl = byId<HTMLDivElement>("gallery");
 
 let bundle: QuihtBundle | null = null;
+
+interface ExampleEntry {
+  name: string;
+  file: string;
+  uiCount: number;
+  blurb: string;
+}
 
 function byId<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
@@ -41,7 +46,10 @@ function clearError(): void {
 }
 
 /** Loads any supported source and shows the result, or a friendly error. */
-async function load(source: ArrayBuffer | Uint8Array | Blob | string, label: string): Promise<void> {
+async function load(
+  source: ArrayBuffer | Uint8Array | Blob | string,
+  label: string,
+): Promise<void> {
   clearError();
   try {
     bundle?.dispose();
@@ -55,6 +63,7 @@ async function load(source: ArrayBuffer | Uint8Array | Blob | string, label: str
     resultMetaEl.textContent = `${label} — ${names.length} UI file${names.length > 1 ? "s" : ""}`;
     buildTabs(names);
     selectUi(names[0]);
+    resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (err) {
     showError(`Could not load that file: ${(err as Error).message}`);
   }
@@ -80,7 +89,14 @@ function selectUi(name: string): void {
   const doc = bundle.uiDocs[name];
   if (!doc) return;
   renderRootEl.innerHTML = "";
-  renderRootEl.appendChild(render(doc, { resourceResolver: bundle.resourceResolver }));
+  // The FontLab preset resolves Y*/Qt* custom widgets to real controls rather
+  // than dotted placeholders.
+  renderRootEl.appendChild(
+    render(doc, {
+      resourceResolver: bundle.resourceResolver,
+      customRenderers: fontlabPreset,
+    }),
+  );
 }
 
 /** Routes a dropped/picked File to the right loader input. */
@@ -91,6 +107,33 @@ async function loadFile(file: File): Promise<void> {
   } else {
     await load(file, file.name);
   }
+}
+
+// --- Example gallery ---------------------------------------------------------
+async function setupGallery(): Promise<void> {
+  try {
+    const res = await fetch("./examples/index.json");
+    if (!res.ok) throw new Error(String(res.status));
+    const data = (await res.json()) as { examples: ExampleEntry[] };
+    galleryEl.innerHTML = "";
+    for (const ex of data.examples) {
+      const card = document.createElement("button");
+      card.className = "gallery-card";
+      card.type = "button";
+      card.innerHTML =
+        `<span class="gallery-card-name">${escapeHtml(ex.name)}</span>` +
+        `<span class="gallery-card-count">${ex.uiCount} UIs</span>` +
+        `<span class="gallery-card-blurb">${escapeHtml(ex.blurb)}</span>`;
+      card.addEventListener("click", () => void load(ex.file, ex.name));
+      galleryEl.appendChild(card);
+    }
+  } catch {
+    galleryEl.innerHTML = `<p class="gallery-empty">Examples unavailable.</p>`;
+  }
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>]/g, (c) => (c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;"));
 }
 
 // --- Wiring ------------------------------------------------------------------
@@ -123,22 +166,27 @@ function setupDropzone(): void {
     const file = (e as DragEvent).dataTransfer?.files?.[0];
     if (file) void loadFile(file);
   });
-
-  sampleBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    void load(SAMPLE_BUNDLE, "sample.quiht.zip");
-  });
 }
 
 function setupTheme(): void {
-  const stored = localStorage.getItem("quiht-theme");
-  if (stored) document.documentElement.setAttribute("data-theme", stored);
+  const prefersLight =
+    typeof matchMedia !== "undefined" && matchMedia("(prefers-color-scheme: light)").matches;
+  const initial = localStorage.getItem("quiht-theme") ?? (prefersLight ? "light" : "dark");
+  applyTheme(initial);
   themeToggle.addEventListener("click", () => {
-    const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", next);
+    const next =
+      document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+    applyTheme(next);
     localStorage.setItem("quiht-theme", next);
   });
 }
 
+function applyTheme(theme: string): void {
+  document.documentElement.setAttribute("data-theme", theme);
+  themeToggle.textContent = theme === "light" ? "☀ Light" : "☾ Dark";
+  themeToggle.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
+}
+
 setupDropzone();
 setupTheme();
+void setupGallery();

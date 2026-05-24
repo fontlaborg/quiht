@@ -38,20 +38,22 @@ Apache-2.0.
 ./build.sh
 ```
 
-Builds, in order: `quiht-core` (tsc → `dist/`), refreshes the vendored sample
-data, `quiht-l10n-vu` (Vite → `dist/`), `quiht-demo` (Vite → `docs/`), and
-`quiht-tools` (`uv build` → `dist/`). Idempotent.
+Deletes previous build artifacts, then builds in order: `quiht-core` (tsc →
+`dist/`), refreshes the vendored sample data, `quiht-l10n-vu` (Vite →
+`dist/`), `quiht-demo` (Vite → `docs/`), and `quiht-tools` (`uv build` →
+`dist/`). Idempotent.
 
 ## Publish
 
 ```bash
-./publish.sh            # DRY RUN (default) — prints what it would do
-./publish.sh --yes      # actually publish to PyPI + npm
+./publish.sh
 ```
 
-npm package versions are stamped from `git describe --tags` at publish time
-(the `package.json` files keep a `0.0.0` placeholder). The Python package gets
-its version from git tags via `hatch-vcs`.
+Publishes for real: it runs `./build.sh`, runs `uvx gitnextver` to commit,
+tag, and push the next `vA.B.C` release, publishes `quiht-tools` to PyPI, then
+publishes `quiht-core` and `quiht-l10n-vu` to npm. npm package versions are
+temporarily stamped from the newly created git tag for publication; the Python
+package gets its version from git tags via `hatch-vcs`.
 
 ## Versioning
 

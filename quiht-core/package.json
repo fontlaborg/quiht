@@ -28,11 +28,13 @@
       "default": "./dist/index.js"
     },
     "./index.css": "./index.css",
+    "./alpine.css": "./alpine.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "index.css",
+    "alpine.css",
     "SPEC.md",
     "README.md"
   ],

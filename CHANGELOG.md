@@ -6,6 +6,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions follow 
 
 ## [Unreleased]
 
+### Release scripts (2026-05-25)
+
+- `build.sh` now starts by removing generated build artifacts, uses lockfile
+  installs for npm packages, treats `uv` as required for sample bundle creation,
+  preserves `docs/design/` across the Vite demo rebuild, and leaves version
+  tagging out of the build step.
+- `publish.sh` is now the real release command with no `--yes` dry-run gate: it
+  runs `./build.sh`, runs `uvx gitnextver` to commit/tag/push the next release,
+  refuses to publish if no new tag was created, rebuilds `quiht-tools` after the
+  release tag so `hatch-vcs` emits final artifacts, publishes to PyPI, and
+  publishes the two npm packages with temporary tag-derived versions.
+
+### Alpine.js compiler (task004) (2026-05-25)
+
+Verified-complete (fresh: `quiht-core` 48 vitest passing — 15 new + 33 prior —
+and `tsc -p tsconfig.json` exit 0; smoke-compiled real Proteus
+`dlglayerpropagate.ui` / `newstrokesgallery.ui`).
+
+Added an HTML-first, build-free compile path for embedding Qt `.ui` files in
+Alpine.js apps (e.g. fog-online), kept **alongside** the DOM `render()` rather
+than replacing it:
+
+- `quiht-core/src/ast.ts` — typed, framework-agnostic AST (`UiRoot`,
+  `WidgetNode`, `LayoutNode`, `Connection`) + `buildAst(doc)`. Splits XML
+  traversal from element mapping; SSR-friendly.
+- `quiht-core/src/compiler.ts` — `compile(docOrAst, options) => string` emitting
+  Alpine markup: Qt classes → native tags/custom elements (DOM layer); inputs'
+  initial values collected into one root `x-data` scope + `x-model` (state
+  layer); `<connections>` → `$dispatch`/`.window` listeners with honest comments
+  for unmapped signals (behaviour layer); layouts → flex/grid utilities (CSS
+  layer). `{ strict }` + `{ customElements }` options.
+- `quiht-core/src/webcomponents.ts` — `registerQuihtComponents()` (idempotent)
+  defining `<q-angle-popup>`/`<q-opacity-bar>`/`<q-color-picker>`/`<q-widget>`
+  with reflected `value` + `input` event (the `x-model` contract).
+- `quiht-core/alpine.css` — production layout/control utilities, themeable via
+  `--q-*` props inheriting fog-online `--th-*` tokens.
+- Exports wired through `index.ts`; `alpine.css` added to package `exports`/
+  `files`. New tests: `ast.test.ts`, `compiler.test.ts`, `webcomponents.test.ts`.
+- `docs/design/fog-online.md` — integration/event/theming contract.
+
 ### Hardening pass — renderer coverage & cleanup (2026-05-25)
 
 Verified-complete (fresh: `quiht-core` 33 vitest, `quiht-l10n-vu` 6 vitest, `build.sh` exit 0):

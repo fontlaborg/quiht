@@ -32,7 +32,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background 0.25s ease, color 0.25s ease;
 }
+.hero, .result, .dropzone, .gallery-card { transition: background 0.25s ease, border-color 0.25s ease; }
 
 .hero {
   display: flex;
@@ -102,6 +104,54 @@ body {
 .dropzone-icon { font-size: 40px; color: var(--accent); line-height: 1; }
 .dropzone-title { font-size: 18px; font-weight: 600; margin: 12px 0 4px; }
 .dropzone-hint { font-size: 13px; color: var(--muted); margin: 0 0 16px; }
+
+/* --- Example gallery -------------------------------------------------- */
+.gallery-section { margin-top: 28px; }
+.gallery-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0 0 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.gallery-card:hover,
+.gallery-card:focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  outline: none;
+}
+.gallery-card-name { font-size: 15px; font-weight: 600; }
+.gallery-card-count {
+  align-self: flex-start;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.gallery-card-blurb { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.gallery-empty { color: var(--muted); font-size: 13px; }
 
 .error {
   margin-top: 20px;

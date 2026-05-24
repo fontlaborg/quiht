@@ -1,0 +1,28 @@
+{
+  "examples": [
+    {
+      "name": "Starter sample",
+      "file": "./sample.quiht.zip",
+      "uiCount": 4,
+      "blurb": "Two FontLab dialogs plus the YAngle/YValue popups — the smallest end-to-end bundle."
+    },
+    {
+      "name": "Glyph inspector",
+      "file": "./examples/inspector.quiht.zip",
+      "uiCount": 10,
+      "blurb": "FontLab's inspector panels: glyph, node, layer, guide and frame property views."
+    },
+    {
+      "name": "Preferences",
+      "file": "./examples/preferences.quiht.zip",
+      "uiCount": 26,
+      "blurb": "The full preferences surface — checkboxes, spin boxes, combos and dense option grids."
+    },
+    {
+      "name": "Common dialogs",
+      "file": "./examples/common.quiht.zip",
+      "uiCount": 17,
+      "blurb": "Shared dialogs and galleries: strokes, folders, colour pickers and list widgets."
+    }
+  ]
+}

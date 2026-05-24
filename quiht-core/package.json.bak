@@ -1,6 +1,6 @@
 {
   "name": "quiht-core",
-  "version": "1.0.2",
+  "version": "0.0.0",
   "description": "Client-side renderer that displays Qt 5/6 .ui XML files as HTML/CSS, with .quiht.zip bundle loading and localization tagging.",
   "type": "module",
   "license": "Apache-2.0",

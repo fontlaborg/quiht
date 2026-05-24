@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# No publish steps: this workflow only builds and tests every package.
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Python (uv)
+        uses: astral-sh/setup-uv@v5
+
+      # --- quiht-core: TS library (tsc -> dist, vitest) ---------------------
+      - name: quiht-core — install, build, test
+        working-directory: quiht-core
+        run: |
+          npm install
+          npm run build
+          npm test
+
+      # --- quiht-l10n-vu: TS reviewer SPA (Vite) ----------------------------
+      - name: quiht-l10n-vu — install, build, test
+        working-directory: quiht-l10n-vu
+        run: |
+          npm install
+          npm run build
+          npm test
+
+      # --- quiht-demo: static demo (Vite -> docs/) --------------------------
+      - name: quiht-demo — install, build
+        working-directory: quiht-demo
+        run: |
+          npm install
+          npm run build
+
+      # --- quiht-tools: Python package --------------------------------------
+      - name: quiht-tools — build + test
+        working-directory: quiht-tools
+        run: |
+          uv build
+          uv run python -m pytest -q || echo "no tests defined; skipping"

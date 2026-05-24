@@ -48,7 +48,7 @@ export function injectStyleSheets(sheets: string[], targetDocument: Document): v
     .map((sheet) => {
       // Convert Qt QSS class selectors to standard CSS classes (QLabel -> .QLabel).
       let converted = sheet.replace(
-        /(^|[{};\s,])(QLabel|QPushButton|QLineEdit|QTextEdit|QPlainTextEdit|QComboBox|QCheckBox|QRadioButton|QGroupBox|QWidget|QFrame|QDialog)/g,
+        /(^|[{};\s,])(QLabel|QPushButton|QToolButton|QLineEdit|QTextEdit|QPlainTextEdit|QComboBox|QCheckBox|QRadioButton|QGroupBox|QWidget|QFrame|QSplitter|QSpinBox|QDoubleSpinBox|QSlider|QProgressBar|QDialogButtonBox|QListWidget|QTreeWidget|QMenuBar|QMenu|QMainWindow|QStatusBar|QDialog)/g,
         "$1.$2",
       );
 
@@ -78,13 +78,13 @@ export function injectStyleSheets(sheets: string[], targetDocument: Document): v
 }
 
 /** Reads a property and coerces it to a string (or "" when absent). */
-function propString(node: Element, name: string): string {
+export function propString(node: Element, name: string): string {
   const v = getProperty(node, name);
   return typeof v === "string" ? v : v == null ? "" : String(v);
 }
 
 /** Translates a string via the resolver if available, mirroring Qt key rules. */
-function translate(text: string, key: string, options: RenderOptions): string {
+export function translate(text: string, key: string, options: RenderOptions): string {
   if (!text) return text;
   let lookupKey = key;
   if (text.startsWith("@")) {
@@ -97,15 +97,164 @@ function translate(text: string, key: string, options: RenderOptions): string {
 }
 
 /** True when a string should be tagged as a translatable node. */
-function isTranslatable(text: string, options: RenderOptions): boolean {
+export function isTranslatable(text: string, options: RenderOptions): boolean {
   return text.startsWith("@") || options.translationResolver != null;
 }
 
 /** Tags an element with the localization contract attributes. */
-function tagTranslatable(el: Element, original: string, fallbackKey: string): void {
+export function tagTranslatable(el: Element, original: string, fallbackKey: string): void {
   el.classList.add("quiht-translatable-node");
   el.setAttribute("data-quiht-key", original.startsWith("@") ? original.substring(1) : fallbackKey);
   el.setAttribute("data-quiht-original", original);
+}
+
+/**
+ * Resolves the translation key for a widget's localizable `text`, honouring
+ * FontLab's `.ts` convention: when a widget carries a `statusTip` of the form
+ * `@some.key`, that key is the canonical translation key and wins over the
+ * synthesized `<widgetName>.text` fallback. When the `text` itself begins with
+ * `@`, {@link translate}/{@link tagTranslatable} already prefer it, so this
+ * helper only supplies the fallback used when the text is plain source.
+ */
+export function textKeyFor(widgetNode: Element, widgetName: string): string {
+  const statusTip = propString(widgetNode, "statusTip");
+  if (statusTip.startsWith("@")) return statusTip.substring(1);
+  return `${widgetName}.text`;
+}
+
+/**
+ * Strips a Qt accelerator mnemonic from menu/action text: a single `&` marks
+ * the following character as the accelerator and is removed; a literal `&&`
+ * collapses to one `&`.
+ */
+function stripMnemonic(text: string): string {
+  const sentinel = String.fromCharCode(0);
+  return text
+    .replace(/&&/g, sentinel)
+    .replace(/&/g, "")
+    .replace(new RegExp(sentinel, "g"), "&");
+}
+
+/** Human-readable labels for Qt `QDialogButtonBox` standard buttons. */
+const STANDARD_BUTTON_LABELS: Record<string, string> = {
+  Ok: "OK",
+  Cancel: "Cancel",
+  Apply: "Apply",
+  Close: "Close",
+  Yes: "Yes",
+  No: "No",
+  Help: "Help",
+  Save: "Save",
+  Discard: "Discard",
+  Reset: "Reset",
+  RestoreDefaults: "Restore Defaults",
+  Open: "Open",
+  SaveAll: "Save All",
+  Retry: "Retry",
+  Ignore: "Ignore",
+  Abort: "Abort",
+  YesToAll: "Yes to All",
+  NoToAll: "No to All",
+};
+
+/**
+ * Renders `<item>` rows for `QListWidget`/`QTreeWidget` into `parent`, recursing
+ * into nested `<item>`s (tree children). Item text is localizable.
+ */
+function renderItemViewItems(
+  items: Element[],
+  parent: HTMLElement,
+  options: RenderOptions,
+  d: Document,
+  widgetName: string,
+  depth: number,
+): void {
+  items.forEach((item, index) => {
+    const textNode = item.querySelector(':scope > property[name="text"] > string');
+    const rawText = textNode?.textContent ?? "";
+
+    const li = d.createElement("li");
+    li.className = "q-item";
+    if (depth > 0) li.style.paddingLeft = `${depth * 14}px`;
+
+    const span = d.createElement("span");
+    const fallbackKey = `${widgetName}.item[${index}]`;
+    span.textContent = translate(rawText, fallbackKey, options);
+    if (rawText && isTranslatable(rawText, options)) {
+      tagTranslatable(span, rawText, fallbackKey);
+    }
+    li.appendChild(span);
+    parent.appendChild(li);
+
+    // Nested <item>s represent tree children.
+    const childItems = directChildren(item, "item");
+    if (childItems.length > 0) {
+      renderItemViewItems(childItems, parent, options, d, widgetName, depth + 1);
+    }
+  });
+}
+
+/**
+ * Renders the structure of a `QMenuBar`/`QMenu`: child `<widget class="QMenu">`
+ * nodes become titled submenus, and `<addaction>` references become action
+ * rows. Titles/action text are localizable with `&` mnemonic handling.
+ */
+function renderMenuChildren(
+  menuNode: Element,
+  parent: HTMLElement,
+  options: RenderOptions,
+  d: Document,
+): void {
+  // Submenus: nested <widget class="QMenu"> children.
+  const submenus = new Map<string, Element>();
+  directChildren(menuNode, "widget").forEach((w) => {
+    if (w.getAttribute("class") === "QMenu") {
+      submenus.set(w.getAttribute("name") ?? "", w);
+
+      const li = d.createElement("li");
+      li.className = "q-menu-title";
+      const rawTitle = propString(w, "title");
+      const span = d.createElement("span");
+      const wName = w.getAttribute("name") ?? "";
+      span.textContent = stripMnemonic(translate(rawTitle, `${wName}.title`, options));
+      if (rawTitle && isTranslatable(rawTitle, options)) {
+        tagTranslatable(span, rawTitle, `${wName}.title`);
+      }
+      li.appendChild(span);
+
+      const sub = d.createElement("ul");
+      sub.className = "QMenu q-submenu QWidget";
+      renderMenuChildren(w, sub, options, d);
+      li.appendChild(sub);
+      parent.appendChild(li);
+    }
+  });
+
+  // Actions: <addaction name="..."/> referencing top-level <action> definitions.
+  directChildren(menuNode, "addaction").forEach((add) => {
+    const actionName = add.getAttribute("name") ?? "";
+    if (actionName === "separator") {
+      const sep = d.createElement("li");
+      sep.className = "q-menu-separator";
+      parent.appendChild(sep);
+      return;
+    }
+    if (submenus.has(actionName)) return; // already rendered as a submenu title
+
+    const doc = menuNode.ownerDocument;
+    const action = doc.querySelector(`action[name="${actionName}"]`);
+    const rawText = action ? propString(action, "text") : actionName;
+
+    const li = d.createElement("li");
+    li.className = "q-menu-action";
+    const span = d.createElement("span");
+    span.textContent = stripMnemonic(translate(rawText, `${actionName}.text`, options));
+    if (rawText && isTranslatable(rawText, options)) {
+      tagTranslatable(span, rawText, `${actionName}.text`);
+    }
+    li.appendChild(span);
+    parent.appendChild(li);
+  });
 }
 
 /** Renders a single `<widget>` node into an HTMLElement. */
@@ -166,13 +315,14 @@ export function renderWidget(
       el.className = "QLabel QWidget";
 
       const labelText = propString(widgetNode, "text");
-      el.textContent = translate(labelText, `${widgetName}.text`, options);
+      const labelKey = textKeyFor(widgetNode, widgetName);
+      el.textContent = translate(labelText, labelKey, options);
 
       const wordWrap = getProperty(widgetNode, "wordWrap");
       if (wordWrap) el.classList.add("q-word-wrap");
 
       if (isTranslatable(labelText, options)) {
-        tagTranslatable(el, labelText, `${widgetName}.text`);
+        tagTranslatable(el, labelText, labelKey);
       }
       break;
     }
@@ -183,7 +333,8 @@ export function renderWidget(
       el.className = `${className} QWidget`;
 
       const btnText = propString(widgetNode, "text");
-      el.textContent = translate(btnText, `${widgetName}.text`, options);
+      const btnKey = textKeyFor(widgetNode, widgetName);
+      el.textContent = translate(btnText, btnKey, options);
 
       const iconPath = getProperty(widgetNode, "icon");
       if (typeof iconPath === "string" && iconPath) {
@@ -199,7 +350,7 @@ export function renderWidget(
       }
 
       if (isTranslatable(btnText, options)) {
-        tagTranslatable(el, btnText, `${widgetName}.text`);
+        tagTranslatable(el, btnText, btnKey);
       }
       break;
     }
@@ -232,12 +383,13 @@ export function renderWidget(
       label.appendChild(cbInput);
 
       const cbText = propString(widgetNode, "text");
+      const cbKey = textKeyFor(widgetNode, widgetName);
       const cbSpan = d.createElement("span");
-      cbSpan.textContent = translate(cbText, `${widgetName}.text`, options);
+      cbSpan.textContent = translate(cbText, cbKey, options);
       label.appendChild(cbSpan);
 
       if (isTranslatable(cbText, options)) {
-        tagTranslatable(cbSpan, cbText, `${widgetName}.text`);
+        tagTranslatable(cbSpan, cbText, cbKey);
       }
       el = label;
       break;
@@ -254,12 +406,13 @@ export function renderWidget(
       label.appendChild(rbInput);
 
       const rbText = propString(widgetNode, "text");
+      const rbKey = textKeyFor(widgetNode, widgetName);
       const rbSpan = d.createElement("span");
-      rbSpan.textContent = translate(rbText, `${widgetName}.text`, options);
+      rbSpan.textContent = translate(rbText, rbKey, options);
       label.appendChild(rbSpan);
 
       if (isTranslatable(rbText, options)) {
-        tagTranslatable(rbSpan, rbText, `${widgetName}.text`);
+        tagTranslatable(rbSpan, rbText, rbKey);
       }
       el = label;
       break;
@@ -338,6 +491,182 @@ export function renderWidget(
       contentContainer = d.createElement("div");
       contentContainer.className = "QWidget";
       el.appendChild(contentContainer);
+      break;
+    }
+
+    case "QWidget": {
+      // The generic container/base class — a plain `<div>`, never a placeholder.
+      el = d.createElement("div");
+      el.className = "QWidget";
+      break;
+    }
+
+    case "QFrame": {
+      el = d.createElement("div");
+      el.className = "QFrame QWidget";
+      // Honour simple frameShape/frameShadow hints as CSS modifier classes.
+      const shape = propString(widgetNode, "frameShape");
+      const shadow = propString(widgetNode, "frameShadow");
+      if (shape.includes("Box")) el.classList.add("q-frame-box");
+      else if (shape.includes("Panel")) el.classList.add("q-frame-panel");
+      else if (shape.includes("HLine")) el.classList.add("q-frame-hline");
+      else if (shape.includes("VLine")) el.classList.add("q-frame-vline");
+      else if (shape.includes("StyledPanel")) el.classList.add("q-frame-styled");
+      if (shadow.includes("Sunken")) el.classList.add("q-frame-sunken");
+      else if (shadow.includes("Raised")) el.classList.add("q-frame-raised");
+      break;
+    }
+
+    case "QSplitter": {
+      el = d.createElement("div");
+      el.className = "QSplitter QWidget";
+      const splitterOrient = propString(widgetNode, "orientation");
+      el.classList.add(splitterOrient.includes("Vertical") ? "q-vertical" : "q-horizontal");
+      break;
+    }
+
+    case "QSpinBox":
+    case "QDoubleSpinBox": {
+      const input = d.createElement("input");
+      input.type = "number";
+      input.className = `${className} QWidget`;
+
+      const min = getProperty(widgetNode, "minimum");
+      const max = getProperty(widgetNode, "maximum");
+      const value = getProperty(widgetNode, "value");
+      const step = getProperty(widgetNode, "singleStep");
+      if (typeof min === "number") input.min = String(min);
+      if (typeof max === "number") input.max = String(max);
+      if (typeof value === "number") input.value = String(value);
+      if (typeof step === "number") input.step = String(step);
+      else if (className === "QDoubleSpinBox") input.step = "any";
+
+      const prefix = propString(widgetNode, "prefix");
+      const suffix = propString(widgetNode, "suffix");
+      if (prefix || suffix) {
+        // Wrap so the prefix/suffix can sit alongside the numeric input.
+        const wrap = d.createElement("span");
+        wrap.className = "q-spinbox-wrap QWidget";
+        if (prefix) {
+          const pre = d.createElement("span");
+          pre.className = "q-spinbox-prefix";
+          pre.textContent = prefix;
+          wrap.appendChild(pre);
+        }
+        wrap.appendChild(input);
+        if (suffix) {
+          const suf = d.createElement("span");
+          suf.className = "q-spinbox-suffix";
+          suf.textContent = suffix;
+          wrap.appendChild(suf);
+        }
+        el = wrap;
+      } else {
+        el = input;
+      }
+      break;
+    }
+
+    case "QSlider": {
+      const input = d.createElement("input");
+      input.type = "range";
+      input.className = "QSlider QWidget";
+      const sliderOrient = propString(widgetNode, "orientation");
+      input.classList.add(sliderOrient.includes("Vertical") ? "q-vertical" : "q-horizontal");
+      const min = getProperty(widgetNode, "minimum");
+      const max = getProperty(widgetNode, "maximum");
+      const value = getProperty(widgetNode, "value");
+      if (typeof min === "number") input.min = String(min);
+      if (typeof max === "number") input.max = String(max);
+      if (typeof value === "number") input.value = String(value);
+      el = input;
+      break;
+    }
+
+    case "QProgressBar": {
+      const progress = d.createElement("progress");
+      progress.className = "QProgressBar QWidget";
+      const min = getProperty(widgetNode, "minimum");
+      const max = getProperty(widgetNode, "maximum");
+      const value = getProperty(widgetNode, "value");
+      // <progress> has no `min`; offset value/max by the minimum when present.
+      const minN = typeof min === "number" ? min : 0;
+      if (typeof max === "number") progress.max = max - minN;
+      if (typeof value === "number") progress.value = value - minN;
+      el = progress;
+      break;
+    }
+
+    case "QDialogButtonBox": {
+      el = d.createElement("div");
+      el.className = "QDialogButtonBox QWidget";
+      const buttons = propString(widgetNode, "standardButtons");
+      buttons
+        .split("|")
+        .map((b) => b.trim())
+        .filter(Boolean)
+        .forEach((token) => {
+          // Tokens look like "QDialogButtonBox::Ok" or "QDialogButtonBox::StandardButton::Ok".
+          const name = token.split("::").pop() ?? token;
+          const btn = d.createElement("button");
+          btn.className = "QPushButton QWidget";
+          btn.setAttribute("data-q-standard-button", name);
+          const label = STANDARD_BUTTON_LABELS[name] ?? name;
+          btn.textContent = translate(label, `${widgetName}.${name}`, options);
+          if (isTranslatable(label, options)) {
+            tagTranslatable(btn, label, `${widgetName}.${name}`);
+          }
+          el.appendChild(btn);
+        });
+      break;
+    }
+
+    case "QListWidget":
+    case "QTreeWidget": {
+      el = d.createElement("ul");
+      el.className = `${className} q-item-view QWidget`;
+      renderItemViewItems(directChildren(widgetNode, "item"), el, options, d, widgetName, 0);
+      break;
+    }
+
+    case "QMenuBar":
+    case "QMenu": {
+      el = d.createElement("ul");
+      el.className = `${className} QWidget`;
+      renderMenuChildren(widgetNode, el, options, d);
+      break;
+    }
+
+    case "QMainWindow": {
+      el = d.createElement("div");
+      el.className = "QMainWindow QWidget";
+
+      // QMainWindow nests its regions as direct <widget> children, identified
+      // either by class or by a <attribute name="..."> on the central widget.
+      directChildren(widgetNode, "widget").forEach((child) => {
+        const childClass = child.getAttribute("class") ?? "";
+        if (childClass === "QMenuBar") {
+          const bar = renderWidget(child, options);
+          bar.classList.add("q-mainwindow-menubar");
+          el.appendChild(bar);
+        } else if (childClass === "QStatusBar") {
+          const status = d.createElement("div");
+          status.className = "QStatusBar q-mainwindow-statusbar QWidget";
+          status.id = child.getAttribute("name") || "";
+          status.setAttribute("data-q-class", "QStatusBar");
+          el.appendChild(status);
+        } else {
+          // Central widget (or toolbars/docks rendered inline).
+          const wrap = d.createElement("div");
+          wrap.className = "q-mainwindow-central";
+          wrap.appendChild(renderWidget(child, options));
+          el.appendChild(wrap);
+        }
+      });
+      // The regions are rendered above; suppress the generic child walk at the
+      // bottom of this function by pointing it at a detached, hidden container.
+      contentContainer = d.createElement("div");
+      contentContainer.style.display = "none";
       break;
     }
 

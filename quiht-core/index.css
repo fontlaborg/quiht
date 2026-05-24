@@ -330,6 +330,264 @@
   cursor: row-resize;
 }
 
+/* Frame */
+.QFrame {
+  box-sizing: border-box;
+}
+
+.QFrame.q-frame-box,
+.QFrame.q-frame-styled,
+.QFrame.q-frame-panel {
+  border: 1px solid var(--q-border-color);
+}
+
+.QFrame.q-frame-sunken {
+  border-style: inset;
+  background-color: var(--q-widget-bg);
+}
+
+.QFrame.q-frame-raised {
+  border-style: outset;
+}
+
+.QFrame.q-frame-hline {
+  border: none;
+  border-top: 1px solid var(--q-border-color);
+  height: 0;
+}
+
+.QFrame.q-frame-vline {
+  border: none;
+  border-left: 1px solid var(--q-border-color);
+  width: 0;
+}
+
+/* SpinBox / DoubleSpinBox */
+.QSpinBox,
+.QDoubleSpinBox {
+  height: 22px;
+  border: 1px solid var(--q-border-color);
+  border-radius: 3px;
+  padding: 0 6px;
+  background-color: var(--q-widget-bg);
+  color: var(--q-text-color);
+  font-size: var(--q-font-size);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.QSpinBox:focus,
+.QDoubleSpinBox:focus {
+  border-color: var(--q-primary-color);
+}
+
+.q-spinbox-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.q-spinbox-prefix,
+.q-spinbox-suffix {
+  color: #555555;
+  font-size: var(--q-font-size);
+}
+
+/* Slider */
+.QSlider {
+  cursor: pointer;
+}
+
+.QSlider.q-vertical {
+  writing-mode: vertical-lr;
+  direction: rtl;
+}
+
+/* ProgressBar */
+.QProgressBar {
+  height: 16px;
+  border: 1px solid var(--q-border-color);
+  border-radius: 3px;
+  background-color: var(--q-widget-bg);
+  overflow: hidden;
+}
+
+.QProgressBar::-webkit-progress-bar {
+  background-color: var(--q-widget-bg);
+}
+
+.QProgressBar::-webkit-progress-value {
+  background-color: var(--q-primary-color);
+}
+
+.QProgressBar::-moz-progress-bar {
+  background-color: var(--q-primary-color);
+}
+
+/* DialogButtonBox */
+.QDialogButtonBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+/* Item Views: list / tree */
+.q-item-view {
+  list-style: none;
+  margin: 0;
+  padding: 2px;
+  border: 1px solid var(--q-border-color);
+  background-color: var(--q-widget-bg);
+  overflow: auto;
+}
+
+.q-item-view .q-item {
+  padding: 2px 6px;
+  cursor: default;
+}
+
+.q-item-view .q-item:hover {
+  background-color: var(--q-hover-bg);
+}
+
+/* Menus */
+.QMenuBar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+  border-bottom: 1px solid var(--q-border-color);
+}
+
+.QMenu {
+  list-style: none;
+  margin: 0;
+  padding: 2px 0;
+}
+
+.q-menu-title {
+  padding: 4px 10px;
+  cursor: default;
+  position: relative;
+}
+
+.q-menu-title:hover {
+  background-color: var(--q-hover-bg);
+}
+
+.q-menu-action {
+  padding: 3px 18px;
+  cursor: default;
+}
+
+.q-menu-action:hover {
+  background-color: var(--q-highlight-bg);
+}
+
+.q-menu-separator {
+  height: 0;
+  border-top: 1px solid var(--q-border-light);
+  margin: 3px 0;
+}
+
+.QMenuBar > .q-menu-title > .q-submenu,
+.QMenu .q-submenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 140px;
+  background-color: var(--q-widget-bg);
+  border: 1px solid var(--q-border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.q-menu-title:hover > .q-submenu {
+  display: block;
+}
+
+/* MainWindow scaffold */
+.QMainWindow {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--q-window-bg);
+}
+
+.q-mainwindow-central {
+  flex-grow: 1;
+  position: relative;
+}
+
+.q-mainwindow-statusbar {
+  border-top: 1px solid var(--q-border-color);
+  padding: 2px 8px;
+  font-size: 10px;
+  color: #555555;
+  min-height: 18px;
+}
+
+/* FontLab custom-widget preset styling */
+.q-suffix-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.q-suffix-edit-suffix {
+  color: #555555;
+  font-size: var(--q-font-size);
+}
+
+.q-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.q-darker-widget {
+  background-color: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+}
+
+.q-lighter-widget {
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 3px;
+}
+
+.q-angle-widget {
+  border: 1px solid var(--q-border-color);
+  border-radius: 50%;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.q-opacity-bar {
+  background: linear-gradient(to right, transparent, var(--q-primary-color));
+  border: 1px solid var(--q-border-color);
+  border-radius: 2px;
+  min-height: 14px;
+}
+
+.q-color-picker {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--q-border-color);
+  border-radius: 3px;
+  background: linear-gradient(135deg, #ff0000, #00ff00, #0000ff);
+}
+
+.q-property-view {
+  border: 1px solid var(--q-border-color);
+  background-color: var(--q-widget-bg);
+  min-height: 40px;
+}
+
 /* Layout Classes */
 .q-vbox-layout {
   display: flex;

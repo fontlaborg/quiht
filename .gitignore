@@ -185,6 +185,8 @@ quiht-tools/src/quiht_tools/__version__.py
 
 # quiht packages produced during testing
 *.quiht.zip
+# …but example/proteus.quiht.zip is a committed real-FontLab-data test fixture.
+!example/proteus.quiht.zip
 
 # ---------------------------------------------------------------------------
 # quiht build layout

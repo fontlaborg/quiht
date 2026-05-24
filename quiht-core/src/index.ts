@@ -13,6 +13,7 @@ import type { RenderOptions } from "./types.js";
 export { parse } from "./parser.js";
 export { render, injectStyleSheets } from "./render.js";
 export { loadBundle, loadZipBundle, loadManifestBundle, loadUiString } from "./bundle.js";
+export { fontlabPreset } from "./presets/fontlab.js";
 export type {
   ResourceResolver,
   TranslationResolver,

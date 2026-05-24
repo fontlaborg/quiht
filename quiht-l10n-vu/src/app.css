@@ -233,6 +233,41 @@ body.is-dragover::after {
   color: #70c5ff;
 }
 
+.ui-item-badge--complete {
+  background-color: rgba(46, 160, 67, 0.25);
+  color: #6fd48a;
+}
+
+.ui-item-badge--partial {
+  background-color: rgba(210, 153, 34, 0.25);
+  color: #e3b341;
+}
+
+/* Zoom controls */
+.canvas-tools-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zoom-level {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--text-muted);
+  min-width: 38px;
+  text-align: center;
+}
+
+.canvas-viewport.is-panning {
+  cursor: grabbing;
+}
+
 /* Center Canvas Workspace */
 .app-canvas-pane {
   flex-grow: 1;

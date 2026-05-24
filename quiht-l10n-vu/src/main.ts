@@ -72,6 +72,7 @@ async function init(): Promise<void> {
     currentLang = langSelectEl.value;
     renderUi();
     renderTable();
+    updateSidebarBadges();
   });
 
   searchInputEl.addEventListener("input", () => filterTable(searchInputEl.value));
@@ -93,8 +94,79 @@ async function init(): Promise<void> {
   });
 
   setupDragAndDrop();
+  setupZoomPan();
 
   await loadDataset(DEFAULT_DATASET);
+}
+
+// --- Zoom & pan --------------------------------------------------------------
+const ZOOM_MIN = 0.25;
+const ZOOM_MAX = 4;
+let zoomScale = 1;
+let panX = 0;
+let panY = 0;
+
+/** Applies the current zoom/pan as a CSS transform on the render pane. */
+function applyTransform(): void {
+  renderRootEl.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomScale})`;
+  const levelEl = document.getElementById("zoom-level");
+  if (levelEl) levelEl.textContent = `${Math.round(zoomScale * 100)}%`;
+}
+
+function setZoom(scale: number): void {
+  zoomScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, scale));
+  applyTransform();
+}
+
+function resetZoomPan(): void {
+  zoomScale = 1;
+  panX = 0;
+  panY = 0;
+  applyTransform();
+}
+
+/** Wires zoom buttons, wheel-zoom, and drag-pan on the canvas viewport. */
+function setupZoomPan(): void {
+  const viewport = document.getElementById("canvas-viewport");
+  document.getElementById("zoom-in")?.addEventListener("click", () => setZoom(zoomScale * 1.2));
+  document.getElementById("zoom-out")?.addEventListener("click", () => setZoom(zoomScale / 1.2));
+  document.getElementById("zoom-reset")?.addEventListener("click", resetZoomPan);
+  if (!viewport) return;
+
+  viewport.addEventListener(
+    "wheel",
+    (e) => {
+      const we = e as WheelEvent;
+      if (!we.ctrlKey && !we.metaKey) return; // only zoom with modifier, else scroll
+      we.preventDefault();
+      setZoom(zoomScale * (we.deltaY < 0 ? 1.1 : 1 / 1.1));
+    },
+    { passive: false },
+  );
+
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+  viewport.addEventListener("mousedown", (e) => {
+    const me = e as MouseEvent;
+    // Pan only when grabbing empty canvas (not a widget) or holding space-like
+    // middle button; keep widget hover/click intact.
+    if (me.button !== 0 || (me.target as Element).closest(".quiht-translatable-node")) return;
+    dragging = true;
+    startX = me.clientX - panX;
+    startY = me.clientY - panY;
+    viewport.classList.add("is-panning");
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    panX = e.clientX - startX;
+    panY = e.clientY - startY;
+    applyTransform();
+  });
+  window.addEventListener("mouseup", () => {
+    dragging = false;
+    viewport.classList.remove("is-panning");
+  });
 }
 
 /** Loads a dataset from any source accepted by quiht-core's loadBundle. */
@@ -139,13 +211,31 @@ function populateSidebar(): void {
   uiNames.forEach((uiName, index) => {
     const li = document.createElement("li");
     li.className = `ui-item ${index === 0 ? "active" : ""}`;
-    li.innerHTML = `<span>${escapeHtml(uiName)}</span><span class="ui-item-badge">UI</span>`;
+    li.setAttribute("data-ui-name", uiName);
+    li.innerHTML = `<span>${escapeHtml(uiName)}</span><span class="ui-item-badge">…</span>`;
     li.addEventListener("click", () => {
       uiListEl.querySelectorAll(".ui-item").forEach((i) => i.classList.remove("active"));
       li.classList.add("active");
       selectUi(uiName);
     });
     uiListEl.appendChild(li);
+  });
+  updateSidebarBadges();
+}
+
+/** Refreshes per-.ui translation-coverage badges in the sidebar. */
+function updateSidebarBadges(): void {
+  if (!bundle) return;
+  uiListEl.querySelectorAll<HTMLElement>(".ui-item").forEach((li) => {
+    const uiName = li.getAttribute("data-ui-name");
+    if (!uiName) return;
+    const doc = bundle?.uiDocs[uiName];
+    const badge = li.querySelector(".ui-item-badge");
+    if (!doc || !badge) return;
+    const { translated, total } = coverageFor(doc, translations, currentLang);
+    badge.textContent = total === 0 ? "0" : `${translated}/${total}`;
+    badge.classList.toggle("ui-item-badge--complete", total > 0 && translated === total);
+    badge.classList.toggle("ui-item-badge--partial", translated > 0 && translated < total);
   });
 }
 
@@ -179,9 +269,19 @@ function extractTranslatableItems(xmlDoc: Document): TranslatableItem[] {
     const widgetName = widget.getAttribute("name") ?? "";
     const widgetClass = widget.getAttribute("class") ?? "";
 
+    // FontLab `.ts` convention: a widget's `statusTip` of the form `@some.key`
+    // is the canonical translation key for that widget's `text` (mirrors
+    // textKeyFor() in quiht-core's renderer — keep the two in sync).
+    const statusTipNode = widget.querySelector(':scope > property[name="statusTip"] > string');
+    const statusTip = statusTipNode?.textContent?.trim() ?? "";
+    const statusTipKey = statusTip.startsWith("@") ? statusTip.substring(1) : null;
+
     const addStringItem = (propName: string, rawValue: string | null): void => {
       if (!rawValue) return;
-      const key = rawValue.startsWith("@") ? rawValue.substring(1) : `${widgetName}.${propName}`;
+      let key: string;
+      if (rawValue.startsWith("@")) key = rawValue.substring(1);
+      else if (propName === "text" && statusTipKey) key = statusTipKey;
+      else key = `${widgetName}.${propName}`;
       if (items.some((item) => item.key === key)) return;
       items.push({ key, widgetName, widgetClass, type: propName, originalText: rawValue });
     };
@@ -213,6 +313,26 @@ function extractTranslatableItems(xmlDoc: Document): TranslatableItem[] {
 function parseTranslatableItems(xmlDoc: Document): void {
   translatableItems = extractTranslatableItems(xmlDoc);
   statTotalEl.textContent = String(translatableItems.length);
+}
+
+/**
+ * Computes translation coverage for a parsed `.ui` document against a
+ * translation table for a target language. Pure (no app state) so it is
+ * directly unit-testable. For the source language `en`, everything that has
+ * source text counts as covered.
+ */
+function coverageFor(
+  xmlDoc: Document,
+  table: TranslationTable,
+  lang: string,
+): { translated: number; total: number } {
+  const items = extractTranslatableItems(xmlDoc);
+  const total = items.length;
+  let translated = 0;
+  for (const item of items) {
+    if (lang === "en" || table[item.key]?.[lang]) translated++;
+  }
+  return { translated, total };
 }
 
 // --- Rendering ---------------------------------------------------------------
@@ -392,4 +512,4 @@ if (typeof document !== "undefined") {
   window.addEventListener("DOMContentLoaded", () => void init());
 }
 
-export { extractTranslatableItems, escapeHtml, type TranslatableItem };
+export { extractTranslatableItems, coverageFor, escapeHtml, type TranslatableItem };

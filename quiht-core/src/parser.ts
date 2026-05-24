@@ -88,5 +88,13 @@ export function getProperty(node: Element, name: string): PropertyValue {
     return iconNode.querySelector("normaloff")?.textContent || iconNode.textContent || null;
   }
 
+  // `<enum>` (e.g. orientation) and `<set>` (e.g. standardButtons, alignment)
+  // both carry their value as text; return it verbatim for the caller to parse.
+  const enumNode = propNode.querySelector("enum");
+  if (enumNode) return enumNode.textContent ?? "";
+
+  const setNode = propNode.querySelector("set");
+  if (setNode) return setNode.textContent ?? "";
+
   return null;
 }

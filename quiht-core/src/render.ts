@@ -681,10 +681,46 @@ export function renderWidget(
     case "QCommandLinkButton": {
       el = d.createElement("button");
       el.className = "QCommandLinkButton QPushButton QWidget";
+
+      const content = d.createElement("div");
+      content.className = "q-command-link-content";
+
+      const titleSpan = d.createElement("span");
+      titleSpan.className = "q-command-link-title";
       const clText = propString(widgetNode, "text");
       const clKey = textKeyFor(widgetNode, widgetName);
-      el.textContent = translate(clText, clKey, options);
-      if (isTranslatable(clText, options)) tagTranslatable(el, clText, clKey);
+      titleSpan.textContent = translate(clText, clKey, options);
+      if (isTranslatable(clText, options)) tagTranslatable(titleSpan, clText, clKey);
+      content.appendChild(titleSpan);
+
+      const desc = propString(widgetNode, "description");
+      if (desc) {
+        const descSpan = d.createElement("span");
+        descSpan.className = "q-command-link-description";
+        descSpan.textContent = translate(desc, `${widgetName}.description`, options);
+        if (isTranslatable(desc, options)) tagTranslatable(descSpan, desc, `${widgetName}.description`);
+        content.appendChild(descSpan);
+      }
+
+      el.appendChild(content);
+
+      // Render custom icon or fallback arrow
+      const iconPath = getProperty(widgetNode, "icon");
+      if (typeof iconPath === "string" && iconPath) {
+        let resolvedUrl = iconPath;
+        if (options.resourceResolver) {
+          resolvedUrl = options.resourceResolver.resolveResource(iconPath);
+        }
+        const img = d.createElement("img");
+        img.className = "q-command-link-icon";
+        img.src = resolvedUrl;
+        el.prepend(img);
+      } else {
+        const arrow = d.createElement("span");
+        arrow.className = "q-command-link-arrow";
+        arrow.textContent = "➔";
+        el.prepend(arrow);
+      }
       break;
     }
 

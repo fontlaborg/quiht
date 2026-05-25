@@ -34,6 +34,8 @@ let translations: TranslationTable = {};
 let currentLang = "de";
 let currentUiDoc: Document | null = null;
 let translatableItems: TranslatableItem[] = [];
+type ViewMode = "translated" | "source" | "split";
+let currentViewMode: ViewMode = "translated";
 
 // --- DOM helpers -------------------------------------------------------------
 function el<T extends HTMLElement>(id: string): T {
@@ -88,6 +90,37 @@ async function init(): Promise<void> {
     renderRootEl.classList.add("q-dark-theme");
   });
 
+  document.getElementById("view-translated")?.addEventListener("click", () => {
+    setViewMode("translated");
+  });
+  document.getElementById("view-source")?.addEventListener("click", () => {
+    setViewMode("source");
+  });
+  document.getElementById("view-split")?.addEventListener("click", () => {
+    setViewMode("split");
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.repeat) return;
+    const active = document.activeElement;
+    if (
+      active &&
+      (active.tagName === "INPUT" ||
+        active.tagName === "TEXTAREA" ||
+        active.tagName === "SELECT" ||
+        active.getAttribute("contenteditable") === "true")
+    ) {
+      return;
+    }
+    if (e.key === "s" || e.key === "S") {
+      e.preventDefault();
+      setViewMode(currentViewMode === "source" ? "translated" : "source");
+    } else if (e.key === "d" || e.key === "D") {
+      e.preventDefault();
+      setViewMode(currentViewMode === "split" ? "translated" : "split");
+    }
+  });
+
   datasetInputEl.addEventListener("change", () => {
     const file = datasetInputEl.files?.[0];
     if (file) void loadFromFile(file);
@@ -97,6 +130,22 @@ async function init(): Promise<void> {
   setupZoomPan();
 
   await loadDataset(DEFAULT_DATASET);
+}
+
+function setViewMode(mode: ViewMode): void {
+  currentViewMode = mode;
+
+  const viewTranslatedEl = document.getElementById("view-translated");
+  const viewSourceEl = document.getElementById("view-source");
+  const viewSplitEl = document.getElementById("view-split");
+
+  if (viewTranslatedEl && viewSourceEl && viewSplitEl) {
+    viewTranslatedEl.classList.toggle("active", currentViewMode === "translated");
+    viewSourceEl.classList.toggle("active", currentViewMode === "source");
+    viewSplitEl.classList.toggle("active", currentViewMode === "split");
+  }
+
+  renderUi();
 }
 
 // --- Zoom & pan --------------------------------------------------------------
@@ -336,24 +385,90 @@ function coverageFor(
 }
 
 // --- Rendering ---------------------------------------------------------------
-function translate(key: string, original: string): string {
-  if (translations[key]?.[currentLang]) return translations[key][currentLang];
-  if (translations[key]?.en) return translations[key].en;
-  const cleanKey = original.startsWith("@") ? original.substring(1) : original;
-  if (translations[cleanKey]?.[currentLang]) return translations[cleanKey][currentLang];
-  return original;
-}
-
 function renderUi(): void {
   if (!currentUiDoc || !bundle) return;
   renderRootEl.innerHTML = "";
 
-  const options: RenderOptions = {
-    resourceResolver: bundle.resourceResolver,
-    translationResolver: { translate },
+  const createTranslateFn = (forceSource: boolean) => {
+    return (key: string, original: string): string => {
+      if (forceSource) {
+        return translations[key]?.en ?? original;
+      }
+      if (translations[key]?.[currentLang]) return translations[key][currentLang];
+      if (translations[key]?.en) return translations[key].en;
+      const cleanKey = original.startsWith("@") ? original.substring(1) : original;
+      if (translations[cleanKey]?.[currentLang]) return translations[cleanKey][currentLang];
+      return original;
+    };
   };
 
-  renderRootEl.appendChild(Quiht.render(currentUiDoc, options));
+  if (currentViewMode === "split") {
+    renderRootEl.className = "qt-split-container";
+    renderRootEl.style.width = "auto";
+    renderRootEl.style.height = "auto";
+
+    // 1. Original (Source) panel
+    const sourcePanel = document.createElement("div");
+    sourcePanel.className = "qt-split-panel";
+
+    const sourceLabel = document.createElement("div");
+    sourceLabel.className = "qt-split-label";
+    sourceLabel.textContent = "Original (Source - EN)";
+    sourcePanel.appendChild(sourceLabel);
+
+    const sourceWrapper = document.createElement("div");
+    sourceWrapper.className = "qt-mockup-wrapper";
+    const sourceOptions: RenderOptions = {
+      resourceResolver: bundle.resourceResolver,
+      translationResolver: { translate: createTranslateFn(true) },
+    };
+    const sourceRendered = Quiht.render(currentUiDoc, sourceOptions);
+    sourceWrapper.appendChild(sourceRendered);
+    sourceWrapper.style.width = sourceRendered.style.width || "auto";
+    sourceWrapper.style.height = sourceRendered.style.height || "auto";
+    sourcePanel.appendChild(sourceWrapper);
+
+    // 2. Translated panel
+    const transPanel = document.createElement("div");
+    transPanel.className = "qt-split-panel";
+
+    const langName = langSelectEl.options[langSelectEl.selectedIndex]?.text ?? currentLang;
+    const transLabel = document.createElement("div");
+    transLabel.className = "qt-split-label";
+    transLabel.textContent = `Translated (${langName})`;
+    transPanel.appendChild(transLabel);
+
+    const transWrapper = document.createElement("div");
+    transWrapper.className = "qt-mockup-wrapper";
+    const transOptions: RenderOptions = {
+      resourceResolver: bundle.resourceResolver,
+      translationResolver: { translate: createTranslateFn(false) },
+    };
+    const transRendered = Quiht.render(currentUiDoc, transOptions);
+    transWrapper.appendChild(transRendered);
+    transWrapper.style.width = transRendered.style.width || "auto";
+    transWrapper.style.height = transRendered.style.height || "auto";
+    transPanel.appendChild(transWrapper);
+
+    renderRootEl.appendChild(sourcePanel);
+    renderRootEl.appendChild(transPanel);
+  } else {
+    renderRootEl.className = "qt-mockup-wrapper";
+
+    const showSource = (currentViewMode === "source");
+    const options: RenderOptions = {
+      resourceResolver: bundle.resourceResolver,
+      translationResolver: { translate: createTranslateFn(showSource) },
+    };
+
+    const rendered = Quiht.render(currentUiDoc, options);
+    renderRootEl.appendChild(rendered);
+
+    // Sync the mockup wrapper size to the root widget's geometry so it doesn't collapse.
+    renderRootEl.style.width = rendered.style.width || "auto";
+    renderRootEl.style.height = rendered.style.height || "auto";
+  }
+
   setupInteractiveEvents();
 }
 

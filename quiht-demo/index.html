@@ -17,36 +17,34 @@
   </header>
 
   <main class="page">
-    <p class="lede">
-      Drop a Qt <code>.ui</code> file, a <code>.quiht.json</code> manifest, or an
-      all-in-one <code>.quiht.zip</code> — and see it rendered, no Qt required.
-    </p>
-
-    <section id="dropzone" class="dropzone" tabindex="0" role="button"
-             aria-label="Drop a file or click to browse">
-      <div class="dropzone-inner">
-        <div class="dropzone-icon">⤓</div>
-        <p class="dropzone-title">Drop a file here</p>
-        <p class="dropzone-hint">.ui · .quiht.json · .quiht.zip &nbsp;—&nbsp; or click to browse</p>
+    <div id="stage-container" class="stage-container">
+      <div id="stage" class="stage" tabindex="0" role="button"
+           aria-label="Gridded canvas. Drag and drop a file here, or click to browse.">
+        <div id="stage-placeholder" class="stage-placeholder">
+          <div class="placeholder-icon">⤓</div>
+          <p class="placeholder-title">Drop a file here</p>
+          <p class="placeholder-hint">.ui · .quiht.json · .quiht.zip &nbsp;—&nbsp; or click to browse</p>
+        </div>
+        <div id="render-root" class="render-root" hidden></div>
       </div>
       <input type="file" id="file-input" accept=".ui,.xml,.json,.quiht.json,.zip,.quiht.zip" hidden>
-    </section>
+    </div>
 
-    <section class="gallery-section" aria-label="Example bundles">
-      <h2 class="gallery-title">Or load a synthetic example</h2>
-      <div id="gallery" class="gallery"></div>
+    <section id="control-bar" class="control-bar" hidden>
+      <div class="result-bar">
+        <div class="result-bar-left">
+          <span id="result-meta" class="result-meta"></span>
+          <nav id="ui-tabs" class="ui-tabs"></nav>
+        </div>
+        <button id="browse-btn" class="ghost-btn" type="button">Browse...</button>
+      </div>
     </section>
 
     <div id="error" class="error" hidden></div>
 
-    <section id="result" class="result" hidden>
-      <div class="result-bar">
-        <span id="result-meta" class="result-meta"></span>
-        <nav id="ui-tabs" class="ui-tabs"></nav>
-      </div>
-      <div id="stage" class="stage">
-        <div id="render-root" class="render-root"></div>
-      </div>
+    <section class="gallery-section" aria-label="Example bundles">
+      <h2 class="gallery-title">Or load a synthetic example</h2>
+      <div id="gallery" class="gallery"></div>
     </section>
   </main>
 

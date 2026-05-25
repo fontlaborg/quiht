@@ -9,13 +9,15 @@ import "./demo.css";
 
 import { render, loadBundle, customWidgetPreset, type QuihtBundle } from "quiht-core";
 
-const dropzone = byId<HTMLElement>("dropzone");
+const stage = byId<HTMLElement>("stage");
+const stagePlaceholder = byId<HTMLElement>("stage-placeholder");
 const fileInput = byId<HTMLInputElement>("file-input");
 const errorEl = byId<HTMLDivElement>("error");
-const resultEl = byId<HTMLElement>("result");
+const controlBarEl = byId<HTMLElement>("control-bar");
 const resultMetaEl = byId<HTMLSpanElement>("result-meta");
 const tabsEl = byId<HTMLElement>("ui-tabs");
 const renderRootEl = byId<HTMLDivElement>("render-root");
+const browseBtn = byId<HTMLButtonElement>("browse-btn");
 const themeToggle = byId<HTMLButtonElement>("theme-toggle");
 const galleryEl = byId<HTMLDivElement>("gallery");
 
@@ -37,7 +39,10 @@ function byId<T extends HTMLElement>(id: string): T {
 function showError(message: string): void {
   errorEl.textContent = message;
   errorEl.hidden = false;
-  resultEl.hidden = true;
+  stage.classList.remove("has-content");
+  stagePlaceholder.hidden = false;
+  renderRootEl.hidden = true;
+  controlBarEl.hidden = true;
 }
 
 function clearError(): void {
@@ -59,11 +64,14 @@ async function load(
       showError("That file loaded, but it contains no .ui documents.");
       return;
     }
-    resultEl.hidden = false;
+    stage.classList.add("has-content");
+    stagePlaceholder.hidden = true;
+    renderRootEl.hidden = false;
+    controlBarEl.hidden = false;
     resultMetaEl.textContent = `${label} — ${names.length} UI file${names.length > 1 ? "s" : ""}`;
     buildTabs(names);
     selectUi(names[0]);
-    resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    stage.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (err) {
     showError(`Could not load that file: ${(err as Error).message}`);
   }
@@ -138,11 +146,20 @@ function escapeHtml(s: string): string {
 
 // --- Wiring ------------------------------------------------------------------
 function setupDropzone(): void {
-  dropzone.addEventListener("click", () => fileInput.click());
-  dropzone.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
+  stage.addEventListener("click", (e) => {
+    if (e.target === stage || stagePlaceholder.contains(e.target as Node)) {
       fileInput.click();
+    }
+  });
+  browseBtn.addEventListener("click", () => {
+    fileInput.click();
+  });
+  stage.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      if (document.activeElement === stage) {
+        e.preventDefault();
+        fileInput.click();
+      }
     }
   });
   fileInput.addEventListener("change", () => {
@@ -151,18 +168,18 @@ function setupDropzone(): void {
   });
 
   ["dragenter", "dragover"].forEach((ev) =>
-    dropzone.addEventListener(ev, (e) => {
+    stage.addEventListener(ev, (e) => {
       e.preventDefault();
-      dropzone.classList.add("is-dragover");
+      stage.classList.add("is-dragover");
     }),
   );
   ["dragleave", "dragend", "drop"].forEach((ev) =>
-    dropzone.addEventListener(ev, (e) => {
+    stage.addEventListener(ev, (e) => {
       e.preventDefault();
-      dropzone.classList.remove("is-dragover");
+      stage.classList.remove("is-dragover");
     }),
   );
-  dropzone.addEventListener("drop", (e) => {
+  stage.addEventListener("drop", (e) => {
     const file = (e as DragEvent).dataTransfer?.files?.[0];
     if (file) void loadFile(file);
   });
@@ -183,6 +200,11 @@ function setupTheme(): void {
 
 function applyTheme(theme: string): void {
   document.documentElement.setAttribute("data-theme", theme);
+  if (theme === "dark") {
+    document.documentElement.classList.add("q-dark-theme");
+  } else {
+    document.documentElement.classList.remove("q-dark-theme");
+  }
   themeToggle.textContent = theme === "light" ? "☀ Light" : "☾ Dark";
   themeToggle.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
 }

@@ -5,6 +5,7 @@ Subcommands:
     quiht gen <src> <dest> [--url_prefix=...] [--ui_files="a.ui,b.ui"]
     quiht jsongen ...        # alias of gen
     quiht pack <src> [--output=...] [--name=...] [--from_src]
+    quiht uipack <ui_file> [--output=...]   # one-step .ui -> .quiht.zip
     quiht unpack <archive> <dest>
     quiht version
 """
@@ -15,7 +16,7 @@ import fire
 
 from quiht_tools import __version__
 from quiht_tools.jsongen import generate
-from quiht_tools.pack import pack, unpack
+from quiht_tools.pack import pack, uipack, unpack
 
 
 def _version() -> str:
@@ -30,6 +31,7 @@ def main() -> None:
             "gen": generate,
             "jsongen": generate,
             "pack": pack,
+            "uipack": uipack,
             "unpack": unpack,
             "version": _version,
         }

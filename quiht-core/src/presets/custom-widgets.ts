@@ -262,24 +262,23 @@ const renderYLineEditSuffix: CustomRenderer = (node, options) => {
   return wrap;
 };
 
-/** YSelector — a labelled, selectable toggle (checkbox + caption). */
+/**
+ * YSelector — extends QLabel: a clickable text label, *not* a checkbox. In
+ * FontLab the adjacent icon button carries the toggle state; YSelector is just
+ * the caption. Rendering it with a checkbox added a spurious square and broke row
+ * alignment, so it is a plain (clickable-styled) text span.
+ */
 const renderYSelector: CustomRenderer = (node, options) => {
   const d = ownerDoc(node, options);
   const name = node.getAttribute("name") ?? "";
-  const label = d.createElement("label");
-  label.className = `${classes(node, "q-selector")}`;
-
-  const input = d.createElement("input");
-  input.type = "checkbox";
-  label.appendChild(input);
+  const span = d.createElement("span");
+  span.className = `${classes(node, "q-selector")} QLabel`;
 
   const raw = propString(node, "text");
   const key = textKeyFor(node, name);
-  const span = d.createElement("span");
   span.textContent = translate(raw, key, options);
   if (raw && isTranslatable(raw, options)) tagTranslatable(span, raw, key);
-  label.appendChild(span);
-  return label;
+  return span;
 };
 
 /**

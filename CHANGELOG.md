@@ -6,6 +6,53 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions follow 
 
 ## [Unreleased]
 
+### Dark-mode icons + YSelector is a label, not a checkbox (2026-05-27)
+
+Three fidelity fixes for FontLab preference panes, verified in a browser against
+reference screenshots:
+
+- **Dark-mode icon inversion.** FontLab ships black monochrome line-art icons that
+  Qt recolours to the palette foreground; quiht showed the raw PNG, invisible on a
+  dark background. The skin now inverts button/label icon images in dark mode
+  (`filter: invert(1) hue-rotate(180deg)` — the hue-rotate keeps the rare coloured
+  thumbnail's hue while flipping lightness; grey line art simply turns white).
+- **YSelector renders as a clickable text label, not a checkbox.** `YSelector`
+  extends `QLabel`; the adjacent icon button is the real toggle. Emitting a
+  `<checkbox>` added a spurious square and pushed labels out of alignment. It is now
+  a plain caption span — which also fixes the row alignment.
+
+### Fix: layout-managed widgets no longer collapse to a blank box (2026-05-27)
+
+A widget carrying a designer `geometry` but driving its children through an
+internal `<layout>` — e.g. a `QScrollArea`'s `widgetResizable` content panel — was
+positioned `absolute` from that geometry, pulling it out of flow so its container
+collapsed to ~0px. A whole 398-element preferences pane (`pref_glyphwindow`) thus
+rendered as a single blank rectangle. `renderWidget` now applies absolute geometry
+only to the root and to genuinely layout-less free children; widgets with their own
+layout flow/fill instead. Verified: the pane renders fully populated, the gallery
+examples still render, 57 vitest pass.
+
+### New `quiht uipack`: one-step `.ui` → `.quiht.zip` (2026-05-27)
+
+`quiht-tools` gains a `uipack` subcommand that packages a single `.ui` file into a
+`.quiht.zip` without naming a source directory (issue 302). It reads the `.ui`,
+auto-locates the asset tree by climbing the file's parent directories until the
+referenced resources resolve, assembles the bundle (+ `.quiht.json`) in a temp dir,
+and zips it. Output defaults to `{cwd}/{ui_basename}.quiht.zip`. Verified: 9 pytest
+pass (2 new), ruff + mypy clean.
+
+### Fix: widget-scoped stylesheets no longer leak globally (2026-05-27)
+
+A per-widget Qt stylesheet (e.g. each colour-flag button's `QToolButton{background-color:#80ffff}`)
+was collected with every other `styleSheet` property and injected into one global
+`<style>` block, so the *last* rule painted **every** toolbutton bright cyan and the
+real icons sat on the wrong background (issue 301). `render` now scopes each
+stylesheet to its owning widget's `#id` (self- and descendant-match, mirroring Qt's
+"applies to this widget and its children"), via the new exported `convertQss` /
+`scopeQss` helpers. Result: colour flags show their individual colours and revert/
+check tool buttons render flat/transparent like FontLab. Verified: 57 vitest pass,
+`tsc` exit 0, demo rebuilt to `docs/` and confirmed in a browser.
+
 ### Expanded custom-widget coverage & demo gallery (2026-05-25)
 
 Verified-complete (fresh: `quiht-core` 54 vitest pass, `tsc` exit 0; demo built to

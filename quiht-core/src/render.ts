@@ -19,22 +19,93 @@ export function render(doc: Document, options: RenderOptions = {}): HTMLElement 
 
   const root = renderWidget(rootWidgetNode, options, true);
 
-  // Collect every styleSheet property declared in the .ui file.
+  // Collect every styleSheet property declared in the .ui file, scoping each to
+  // its owning widget. In Qt a widget's stylesheet only affects that widget and
+  // its children, so a per-widget rule like `QToolButton{background:#80ffff}`
+  // (e.g. a single colour-flag button) must NOT leak to every toolbutton — which
+  // is exactly what happened when all sheets were injected into one global block.
   const styles: string[] = [];
   doc.querySelectorAll('property[name="styleSheet"] > string').forEach((sheet) => {
-    if (sheet.textContent) styles.push(sheet.textContent);
+    if (!sheet.textContent) return;
+    const converted = convertQss(sheet.textContent);
+    const ownerName = owningWidgetName(sheet);
+    styles.push(ownerName ? scopeQss(converted, `#${ownerName}`) : converted);
   });
 
   if (styles.length > 0) {
     const targetDoc = options.targetDocument ?? root.ownerDocument;
-    if (targetDoc) injectStyleSheets(styles, targetDoc);
+    if (targetDoc) writeStyleTag(styles.join("\n"), targetDoc);
   }
 
   return root;
 }
 
+/** Walks up from a `<property>`'s child to the nearest `<widget name>` owner. */
+function owningWidgetName(node: Element): string | null {
+  for (let n: Element | null = node.parentElement; n; n = n.parentElement) {
+    if (n.tagName === "widget") return n.getAttribute("name");
+  }
+  return null;
+}
+
+/** Converts Qt QSS class selectors and gradients to their CSS equivalents. */
+export function convertQss(sheet: string): string {
+  // Convert Qt QSS class selectors to standard CSS classes (QLabel -> .QLabel).
+  let converted = sheet.replace(
+    /(^|[{};\s,])(QLabel|QPushButton|QToolButton|QLineEdit|QTextEdit|QPlainTextEdit|QComboBox|QCheckBox|QRadioButton|QGroupBox|QWidget|QFrame|QSplitter|QSpinBox|QDoubleSpinBox|QSlider|QProgressBar|QDialogButtonBox|QListWidget|QTreeWidget|QMenuBar|QMenu|QMainWindow|QStatusBar|QDialog)/g,
+    "$1.$2",
+  );
+
+  // Convert qlineargradient(...) to CSS linear-gradient(...).
+  converted = converted.replace(/qlineargradient\(([^)]+)\)/g, (_match, content: string) => {
+    const parts = content.split(",").map((s) => s.trim());
+    const stops = parts.filter((p) => p.startsWith("stop:"));
+    const cssStops = stops
+      .map((stop) => {
+        const matchStop = stop.match(/stop:([0-9.]+)\s+(#[0-9a-fA-F]+|[a-zA-Z]+)/);
+        if (matchStop) {
+          const percent = parseFloat(matchStop[1]) * 100;
+          return `${matchStop[2]} ${percent}%`;
+        }
+        return "";
+      })
+      .filter((s) => s !== "");
+
+    return `linear-gradient(to bottom, ${cssStops.join(", ")})`;
+  });
+
+  return converted;
+}
+
+/**
+ * Scopes already-converted CSS to a single widget, mirroring Qt's rule that a
+ * widget stylesheet applies to the widget itself and its descendants. Each
+ * selector becomes both a self-match (`#id.Sel`) and a descendant-match
+ * (`#id .Sel`); a bare `*` becomes `#id, #id *`.
+ */
+export function scopeQss(css: string, scope: string): string {
+  return css.replace(/([^{}]+)\{([^{}]*)\}/g, (_m, sels: string, body: string) => {
+    const scoped = sels
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((sel) => {
+        if (sel === "*" || sel === ":root") return `${scope}, ${scope} *`;
+        if (/^[.#:[]/.test(sel)) return `${scope}${sel}, ${scope} ${sel}`;
+        return `${scope} ${sel}`;
+      })
+      .join(", ");
+    return `${scoped}{${body}}`;
+  });
+}
+
 /** Injects converted Qt stylesheets into the given document's `<head>`. */
 export function injectStyleSheets(sheets: string[], targetDocument: Document): void {
+  writeStyleTag(sheets.map(convertQss).join("\n"), targetDocument);
+}
+
+/** Creates or updates the single injected `<style>` tag with final CSS text. */
+function writeStyleTag(cssText: string, targetDocument: Document): void {
   const styleId = "quiht-injected-stylesheets";
   let styleTag = targetDocument.getElementById(styleId) as HTMLStyleElement | null;
   const head = targetDocument.head ?? targetDocument.documentElement;
@@ -43,37 +114,6 @@ export function injectStyleSheets(sheets: string[], targetDocument: Document): v
     styleTag.id = styleId;
     head.appendChild(styleTag);
   }
-
-  const cssText = sheets
-    .map((sheet) => {
-      // Convert Qt QSS class selectors to standard CSS classes (QLabel -> .QLabel).
-      let converted = sheet.replace(
-        /(^|[{};\s,])(QLabel|QPushButton|QToolButton|QLineEdit|QTextEdit|QPlainTextEdit|QComboBox|QCheckBox|QRadioButton|QGroupBox|QWidget|QFrame|QSplitter|QSpinBox|QDoubleSpinBox|QSlider|QProgressBar|QDialogButtonBox|QListWidget|QTreeWidget|QMenuBar|QMenu|QMainWindow|QStatusBar|QDialog)/g,
-        "$1.$2",
-      );
-
-      // Convert qlineargradient(...) to CSS linear-gradient(...).
-      converted = converted.replace(/qlineargradient\(([^)]+)\)/g, (_match, content: string) => {
-        const parts = content.split(",").map((s) => s.trim());
-        const stops = parts.filter((p) => p.startsWith("stop:"));
-        const cssStops = stops
-          .map((stop) => {
-            const matchStop = stop.match(/stop:([0-9.]+)\s+(#[0-9a-fA-F]+|[a-zA-Z]+)/);
-            if (matchStop) {
-              const percent = parseFloat(matchStop[1]) * 100;
-              return `${matchStop[2]} ${percent}%`;
-            }
-            return "";
-          })
-          .filter((s) => s !== "");
-
-        return `linear-gradient(to bottom, ${cssStops.join(", ")})`;
-      });
-
-      return converted;
-    })
-    .join("\n");
-
   styleTag.textContent = cssText;
 }
 
@@ -825,10 +865,17 @@ export function renderWidget(
   el.setAttribute("data-q-name", widgetName);
   el.id = widgetName;
 
-  // Apply geometry for the root widget or widgets not inside a layout item.
+  // Apply geometry for the root widget or free (non-layout) children. A widget
+  // that drives its own children through an internal `<layout>` (e.g. a
+  // QScrollArea's `widgetResizable` content panel) must NOT be absolutely
+  // positioned by its designer geometry — that would pull it out of flow and
+  // collapse its container to nothing. Such widgets flow/fill instead; only the
+  // root and genuinely layout-less free children keep absolute geometry.
   const geometry = getProperty(widgetNode, "geometry") as QRect | null;
   const parentEl = widgetNode.parentNode as Element | null;
-  if (geometry && (isRoot || !parentEl || parentEl.tagName !== "item")) {
+  const freeChild = !parentEl || parentEl.tagName !== "item";
+  const hasOwnLayout = firstChild(widgetNode, "layout") !== null;
+  if (geometry && (isRoot || (freeChild && !hasOwnLayout))) {
     el.style.position = "absolute";
     el.style.left = `${geometry.x}px`;
     el.style.top = `${geometry.y}px`;

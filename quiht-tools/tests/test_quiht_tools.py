@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from quiht_tools.jsongen import generate
-from quiht_tools.pack import MANIFEST_NAME, pack, unpack
+from quiht_tools.pack import MANIFEST_NAME, pack, uipack, unpack
 
 EXAMPLE_DIR = Path(__file__).resolve().parents[2] / "example"
 
@@ -66,7 +66,10 @@ def test_generate_no_product_hardcodes(tmp_path: Path) -> None:
     )
     manifest = generate(src, tmp_path / "out", verbose=False)
     # No remap to file_open.png; the real referenced file is resolved as-is.
-    assert manifest["resources"][":/images/document_open.png"] == "resources/document_open.png"
+    assert (
+        manifest["resources"][":/images/document_open.png"]
+        == "resources/document_open.png"
+    )
 
 
 def test_pack_creates_zip_with_manifest_at_root(tmp_path: Path) -> None:
@@ -102,7 +105,9 @@ def test_unpack_round_trip(tmp_path: Path) -> None:
     out_dir = tmp_path / "extracted"
     unpack(archive, out_dir, verbose=False)
 
-    extracted_manifest = json.loads((out_dir / MANIFEST_NAME).read_text(encoding="utf-8"))
+    extracted_manifest = json.loads(
+        (out_dir / MANIFEST_NAME).read_text(encoding="utf-8")
+    )
     assert extracted_manifest == manifest
     assert (out_dir / "ui" / "dialog.ui").is_file()
     assert (out_dir / "resources" / "open.png").is_file()
@@ -114,6 +119,36 @@ def test_unpack_rejects_non_quiht_zip(tmp_path: Path) -> None:
         zf.writestr("readme.txt", "not a quiht package")
     with pytest.raises(ValueError):
         unpack(bad, tmp_path / "out", verbose=False)
+
+
+def test_uipack_one_step_from_ui_only(tmp_path: Path) -> None:
+    """`uipack` auto-locates assets from just the .ui path and zips them."""
+    src = _make_src_tree(tmp_path / "src")
+    out = uipack(
+        src / "ui" / "dialog.ui", output=tmp_path / "dialog.quiht.zip", verbose=False
+    )
+    with zipfile.ZipFile(out) as zf:
+        names = zf.namelist()
+        assert MANIFEST_NAME in names
+        assert "ui/dialog.ui" in names
+        assert "resources/open.png" in names
+        manifest = json.loads(zf.read(MANIFEST_NAME))
+        assert (
+            manifest["resources"][":/images/resources/open.png"] == "resources/open.png"
+        )
+
+
+def test_uipack_default_output_is_cwd_stem(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Without --output, the zip lands at {cwd}/{ui_stem}.quiht.zip."""
+    src = _make_src_tree(tmp_path / "src")
+    cwd = tmp_path / "run"
+    cwd.mkdir()
+    monkeypatch.chdir(cwd)
+    out = uipack(src / "ui" / "dialog.ui", verbose=False)
+    assert Path(out) == cwd / "dialog.quiht.zip"
+    assert (cwd / "dialog.quiht.zip").is_file()
 
 
 @pytest.mark.skipif(not EXAMPLE_DIR.is_dir(), reason="example/ fixture not present")

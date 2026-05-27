@@ -930,6 +930,28 @@ hr.q-frame-vline { width: 1px; align-self: stretch; }
   color: #aaaaaa;
 }
 
+/*
+ * Dark-theme icon inversion. Qt recolours monochrome QIcons to the palette's
+ * foreground; quiht renders the raw PNG, so the black line-art icons FontLab
+ * ships are invisible on a dark background. Invert button/label icons in dark
+ * mode. `hue-rotate(180deg)` pairs with the invert so the rare *coloured*
+ * thumbnail keeps its hue (lightness flips) instead of turning into its
+ * negative — pure-grey line art is unaffected by the hue rotation and simply
+ * becomes white.
+ */
+.q-dark-theme .QToolButton img,
+[data-theme="dark"] .QToolButton img,
+.q-dark-theme .QPushButton img,
+[data-theme="dark"] .QPushButton img,
+.q-dark-theme .QCheckBox img,
+[data-theme="dark"] .QCheckBox img,
+.q-dark-theme .QRadioButton img,
+[data-theme="dark"] .QRadioButton img,
+.q-dark-theme .QLabel img,
+[data-theme="dark"] .QLabel img {
+  filter: invert(1) hue-rotate(180deg);
+}
+
 /* Hover Highlighting classes */
 .quiht-translatable-node {
   outline: 1px dashed rgba(74, 144, 226, 0.4);

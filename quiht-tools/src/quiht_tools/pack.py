@@ -14,6 +14,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+from quiht_tools.jsongen import DEFAULT_RESOURCE_EXTS
+
 MANIFEST_NAME = ".quiht.json"
 EXTRA_FILES: tuple[str, ...] = ("translations.json",)
 
@@ -27,7 +29,9 @@ def _iter_bundle_files(bundle: Path) -> list[Path]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     files: list[Path] = [manifest_path]
 
-    for rel in list(manifest.get("ui", {}).values()) + list(manifest.get("resources", {}).values()):
+    for rel in list(manifest.get("ui", {}).values()) + list(
+        manifest.get("resources", {}).values()
+    ):
         path = bundle / rel
         if path.is_file():
             files.append(path)
@@ -98,6 +102,109 @@ def pack(
     return str(out_path)
 
 
+def _locate_source_dir(
+    ui_path: Path,
+    strip_prefixes: tuple[str, ...],
+    resource_exts: tuple[str, ...],
+    max_up: int = 12,
+) -> Path:
+    """Find the nearest ancestor of ``ui_path`` that holds its referenced assets.
+
+    Climbs from the `.ui` file's directory upward, indexing each candidate root
+    and counting how many of the file's resource references resolve there. Returns
+    the first (nearest, smallest) ancestor that resolves *all* references; if none
+    does, the nearest ancestor that resolves the most. With no references at all,
+    the `.ui` file's own directory is returned.
+    """
+    from quiht_tools.jsongen import (
+        _clean_qrc_path,
+        _extract_resource_refs,
+        _index_resources,
+    )
+
+    refs = _extract_resource_refs(ui_path)
+    if not refs:
+        return ui_path.parent
+
+    def resolved_count(root: Path) -> int:
+        index = _index_resources(root, resource_exts)
+        n = 0
+        for ref in refs:
+            clean = _clean_qrc_path(ref, strip_prefixes)
+            if index.get(clean) or index.get(Path(clean).name):
+                n += 1
+        return n
+
+    candidates: list[Path] = []
+    cursor = ui_path.parent
+    for _ in range(max_up):
+        candidates.append(cursor)
+        if cursor.parent == cursor:  # filesystem root
+            break
+        cursor = cursor.parent
+
+    best_root = candidates[0]
+    best_count = -1
+    for root in candidates:
+        count = resolved_count(root)
+        if count > best_count:
+            best_count = count
+            best_root = root
+        if count == len(refs):  # all resolved — nearest wins, stop climbing
+            return root
+    return best_root
+
+
+def uipack(
+    ui_file: str | Path,
+    output: str | Path | None = None,
+    strip_prefixes: tuple[str, ...] = ("images/",),
+    resource_exts: tuple[str, ...] = DEFAULT_RESOURCE_EXTS,
+    verbose: bool = True,
+) -> str:
+    """One-step `.ui` → `.quiht.zip`: locate assets, build a bundle, pack it.
+
+    Unlike ``gen`` + ``pack``, this needs only the `.ui` file: the source tree is
+    auto-located by climbing the file's parent directories until the resources it
+    references resolve. The bundle is assembled in a temp directory and zipped.
+
+    :param ui_file: Path to the input `.ui` file.
+    :param output: Output `.quiht.zip` path. Defaults to
+        ``{cwd}/{ui_basename}.quiht.zip``.
+    :param strip_prefixes: Path prefixes stripped from cleaned resource paths
+        before lookup (forwarded to ``generate``).
+    :param resource_exts: Resource file extensions to index/copy.
+    :param verbose: Print progress.
+    :returns: The path to the created `.quiht.zip`.
+    """
+    from quiht_tools.jsongen import generate
+
+    ui_path = Path(ui_file).resolve()
+    if not ui_path.is_file():
+        raise FileNotFoundError(f"UI file not found: {ui_path}")
+
+    src_dir = _locate_source_dir(ui_path, strip_prefixes, resource_exts)
+    out_path = (
+        Path(output).resolve() if output else Path.cwd() / f"{ui_path.stem}.quiht.zip"
+    )
+
+    if verbose:
+        print(f"UI file:    {ui_path}")
+        print(f"Source dir: {src_dir}")
+        print(f"Output:     {out_path}")
+
+    tmp = Path(tempfile.mkdtemp(prefix="quiht-uipack-"))
+    generate(
+        src_dir,
+        tmp,
+        ui_files=[ui_path.relative_to(src_dir).as_posix()],
+        strip_prefixes=strip_prefixes,
+        resource_exts=resource_exts,
+        verbose=verbose,
+    )
+    return pack(tmp, output=out_path, name=ui_path.stem, verbose=verbose)
+
+
 def unpack(archive: str | Path, dest: str | Path, verbose: bool = True) -> str:
     """Extract a `.quiht.zip` archive into a destination directory.
 
@@ -112,7 +219,9 @@ def unpack(archive: str | Path, dest: str | Path, verbose: bool = True) -> str:
 
     with zipfile.ZipFile(archive_path, "r") as zf:
         if MANIFEST_NAME not in zf.namelist():
-            raise ValueError(f"{archive_path} is not a valid .quiht.zip ({MANIFEST_NAME} missing at root)")
+            raise ValueError(
+                f"{archive_path} is not a valid .quiht.zip ({MANIFEST_NAME} missing at root)"
+            )
         zf.extractall(dest_path)
         if verbose:
             for name in zf.namelist():

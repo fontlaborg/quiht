@@ -66,6 +66,19 @@ quiht pack <src_dir> --from_src --name mybundle --ui_files "a.ui,b.ui"
 
 Defaults to `<bundle-name>.quiht.zip` in the current directory.
 
+### `uipack` — one-step `.ui` → `.quiht.zip`
+
+Package a single `.ui` file without naming a source directory. `uipack` reads the
+`.ui`, auto-locates the asset tree by climbing the file's parent directories until
+its referenced resources resolve, builds the bundle in a temp dir, and zips it:
+
+```bash
+quiht uipack path/to/info_names.ui
+# -> ./info_names.quiht.zip  (defaults to {cwd}/{ui_basename}.quiht.zip)
+
+quiht uipack path/to/info_names.ui --output dist/info_names.quiht.zip
+```
+
 ### `unpack` — extract a `.quiht.zip`
 
 ```bash
@@ -81,10 +94,11 @@ quiht version
 ## Library use
 
 ```python
-from quiht_tools import generate, pack, unpack
+from quiht_tools import generate, pack, uipack, unpack
 
 generate("src/qt", "build/bundle")
 pack("build/bundle", output="bundle.quiht.zip")
+uipack("src/qt/forms/info_names.ui")  # one-step .ui -> .quiht.zip
 unpack("bundle.quiht.zip", "build/extracted")
 ```
 

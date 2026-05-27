@@ -11,7 +11,7 @@ import { render } from "./render.js";
 import type { RenderOptions } from "./types.js";
 
 export { parse } from "./parser.js";
-export { render, injectStyleSheets } from "./render.js";
+export { render, injectStyleSheets, convertQss, scopeQss } from "./render.js";
 export { loadBundle, loadZipBundle, loadManifestBundle, loadUiString } from "./bundle.js";
 export { customWidgetPreset } from "./presets/custom-widgets.js";
 export { buildAst, buildWidget, buildConnections } from "./ast.js";

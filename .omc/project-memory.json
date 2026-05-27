@@ -1,0 +1,265 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1779882294687,
+  "projectRoot": "/Users/adam/Developer/vcs3/github.fontlaborg/quiht",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 2,
+      "lastAccessed": 1779882294675,
+      "keyFiles": [
+        "index.html",
+        "sample.quiht.zip"
+      ]
+    },
+    "example": {
+      "path": "example",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1779882294675,
+      "keyFiles": [
+        "demo.quiht.zip",
+        "info_names.quiht.png",
+        "info_names.quiht.zip",
+        "translations.json"
+      ]
+    },
+    "issues": {
+      "path": "issues",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1779882294675,
+      "keyFiles": [
+        "301.md"
+      ]
+    },
+    "quiht-core": {
+      "path": "quiht-core",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1779882294675,
+      "keyFiles": [
+        "CLAUDE.md",
+        "README.md",
+        "SPEC.md",
+        "alpine.css",
+        "index.css"
+      ]
+    },
+    "quiht-demo": {
+      "path": "quiht-demo",
+      "purpose": null,
+      "fileCount": 6,
+      "lastAccessed": 1779882294676,
+      "keyFiles": [
+        "README.md",
+        "index.html",
+        "package-lock.json",
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    "quiht-l10n-vu": {
+      "path": "quiht-l10n-vu",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1779882294676,
+      "keyFiles": [
+        "README.md",
+        "SPEC.md",
+        "index.html",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "quiht-tools": {
+      "path": "quiht-tools",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1779882294676,
+      "keyFiles": [
+        "README.md",
+        "pyproject.toml",
+        "uv.lock"
+      ]
+    },
+    "docs/assets": {
+      "path": "docs/assets",
+      "purpose": "Static assets",
+      "fileCount": 2,
+      "lastAccessed": 1779882294676,
+      "keyFiles": [
+        "index-DjDPwdo7.js",
+        "index-DzDz-FtN.css"
+      ]
+    },
+    "docs/examples": {
+      "path": "docs/examples",
+      "purpose": "Example code",
+      "fileCount": 4,
+      "lastAccessed": 1779882294676,
+      "keyFiles": [
+        "controls.quiht.zip",
+        "custom-widgets.quiht.zip",
+        "index.json"
+      ]
+    },
+    "quiht-core/dist": {
+      "path": "quiht-core/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 32,
+      "lastAccessed": 1779882294677,
+      "keyFiles": [
+        "ast.d.ts",
+        "ast.d.ts.map",
+        "ast.js"
+      ]
+    },
+    "quiht-core/node_modules": {
+      "path": "quiht-core/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1779882294684,
+      "keyFiles": []
+    },
+    "quiht-core/src": {
+      "path": "quiht-core/src",
+      "purpose": "Source code",
+      "fileCount": 9,
+      "lastAccessed": 1779882294684,
+      "keyFiles": [
+        "CLAUDE.md",
+        "ast.ts",
+        "bundle.ts"
+      ]
+    },
+    "quiht-demo/node_modules": {
+      "path": "quiht-demo/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1779882294684,
+      "keyFiles": []
+    },
+    "quiht-demo/public": {
+      "path": "quiht-demo/public",
+      "purpose": "Public files",
+      "fileCount": 1,
+      "lastAccessed": 1779882294684,
+      "keyFiles": [
+        "sample.quiht.zip"
+      ]
+    },
+    "quiht-demo/src": {
+      "path": "quiht-demo/src",
+      "purpose": "Source code",
+      "fileCount": 2,
+      "lastAccessed": 1779882294684,
+      "keyFiles": [
+        "demo.css",
+        "main.ts"
+      ]
+    },
+    "quiht-l10n-vu/dist": {
+      "path": "quiht-l10n-vu/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 1,
+      "lastAccessed": 1779882294686,
+      "keyFiles": [
+        "index.html"
+      ]
+    },
+    "quiht-l10n-vu/node_modules": {
+      "path": "quiht-l10n-vu/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1779882294687,
+      "keyFiles": []
+    },
+    "quiht-l10n-vu/public": {
+      "path": "quiht-l10n-vu/public",
+      "purpose": "Public files",
+      "fileCount": 0,
+      "lastAccessed": 1779882294687,
+      "keyFiles": []
+    },
+    "quiht-l10n-vu/src": {
+      "path": "quiht-l10n-vu/src",
+      "purpose": "Source code",
+      "fileCount": 2,
+      "lastAccessed": 1779882294687,
+      "keyFiles": [
+        "app.css",
+        "main.ts"
+      ]
+    },
+    "quiht-l10n-vu/test": {
+      "path": "quiht-l10n-vu/test",
+      "purpose": "Test files",
+      "fileCount": 1,
+      "lastAccessed": 1779882294687,
+      "keyFiles": [
+        "extract.test.ts"
+      ]
+    },
+    "quiht-tools/dist": {
+      "path": "quiht-tools/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 3,
+      "lastAccessed": 1779882294687,
+      "keyFiles": [
+        "quiht_tools-1.0.8-py3-none-any.whl",
+        "quiht_tools-1.0.8.tar.gz"
+      ]
+    },
+    "quiht-tools/src": {
+      "path": "quiht-tools/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1779882294687,
+      "keyFiles": []
+    },
+    "quiht-tools/tests": {
+      "path": "quiht-tools/tests",
+      "purpose": "Test files",
+      "fileCount": 1,
+      "lastAccessed": 1779882294687,
+      "keyFiles": [
+        "test_quiht_tools.py"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}

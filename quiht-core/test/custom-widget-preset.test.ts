@@ -30,16 +30,18 @@ describe("customWidgetPreset", () => {
     expectNoPlaceholder(el);
   });
 
-  it("renders YSelector as a labelled checkbox toggle, localizing its text", () => {
+  it("renders YSelector as a clickable text label (no checkbox), localizing its text", () => {
     const el = renderUi(
       `<widget class="YSelector" name="sel">
         <property name="text"><string>Show guides</string></property>
       </widget>`,
       { ...options, translationResolver: { translate: () => "Hilfslinien" } },
     );
-    expect(el.querySelector('input[type="checkbox"]')).not.toBeNull();
-    expect(el.querySelector("span")?.textContent).toBe("Hilfslinien");
-    expect(el.querySelector(".quiht-translatable-node")).not.toBeNull();
+    // The adjacent icon button carries the toggle — YSelector itself is a label.
+    expect(el.querySelector('input[type="checkbox"]')).toBeNull();
+    expect(el.tagName).toBe("SPAN");
+    expect(el.textContent).toBe("Hilfslinien");
+    expect(el.classList.contains("quiht-translatable-node")).toBe(true);
     expectNoPlaceholder(el);
   });
 

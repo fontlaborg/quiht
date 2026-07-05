@@ -23,8 +23,14 @@ Everything builds via the top-level scripts:
 
 ```bash
 ./build.sh            # builds quiht-core, quiht-l10n-vu, quiht-demo (->docs/), quiht-tools
+./test.sh             # runs all three suites: quiht-core + quiht-l10n-vu (vitest), quiht-tools (pytest)
 ./publish.sh          # real release: build, gitnextver commit/tag/push, PyPI + npm
 ```
+
+CI runs the same tests on every push (`.github/workflows/ci.yml`). Pushing a
+`vA.B.C` tag triggers `.github/workflows/release.yml`, which builds, tests, and
+publishes all four packages from the tag (PyPI + npm) — the CI equivalent of
+`./publish.sh` without the local `gitnextver` step.
 
 Per package:
 

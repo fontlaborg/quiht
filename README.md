@@ -43,6 +43,16 @@ Deletes previous build artifacts, then builds in order: `quiht-core` (tsc →
 `dist/`), `quiht-demo` (Vite → `docs/`), and `quiht-tools` (`uv build` →
 `dist/`). Idempotent.
 
+## Test everything
+
+```bash
+./test.sh
+```
+
+Runs every suite in order: `quiht-core` (vitest), `quiht-l10n-vu` (vitest, on
+`quiht-core`'s built `dist/`), and `quiht-tools` (pytest). The same checks run
+on every push in CI (`.github/workflows/ci.yml`).
+
 ## Publish
 
 ```bash
@@ -59,6 +69,11 @@ package gets its version from git tags via `hatch-vcs`.
 
 All packages are **git-tag semver**: tag a release (`git tag v1.2.3`) and the
 build/publish scripts derive versions from it. Don't hand-edit version fields.
+
+Pushing a `vA.B.C` tag also triggers `.github/workflows/release.yml`, which
+builds, tests, and publishes all four packages (PyPI + npm) straight from the
+tag — so a tag push is a full release without running `./publish.sh` locally.
+The workflow needs an `NPM_TOKEN` secret and a PyPI trusted publisher.
 
 ## Local development
 

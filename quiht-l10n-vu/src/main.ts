@@ -309,6 +309,11 @@ function selectUi(uiName: string): void {
  * Walks a parsed `.ui` document and extracts localizable items using the same
  * `@key` / `<widgetName>.<property>` convention the renderer tags nodes with.
  * Pure (no app state) so it is directly unit-testable.
+ *
+ * WARNING: this must stay in sync with quiht-core's renderer key convention —
+ * the `@`-prefix and the `<widgetName>.<prop>` key synthesis. If the renderer
+ * changes how it tags nodes, update this walker in lockstep or the reviewer
+ * will mismatch keys and silently drop translations.
  */
 function extractTranslatableItems(xmlDoc: Document): TranslatableItem[] {
   const items: TranslatableItem[] = [];

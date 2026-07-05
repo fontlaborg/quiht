@@ -48,7 +48,15 @@ function owningWidgetName(node: Element): string | null {
   return null;
 }
 
-/** Converts Qt QSS class selectors and gradients to their CSS equivalents. */
+/**
+ * Converts Qt QSS class selectors and gradients to their CSS equivalents.
+ *
+ * LIMITATION: this is a best-effort string transformation, not a real QSS
+ * parser. It handles the common cases (class selectors, gradients) via regex
+ * and deliberately does not attempt full QSS grammar coverage. Do not "fix"
+ * this into a regex-heavy parser — if real QSS fidelity is ever needed, replace
+ * it with a proper tokenizer rather than growing the pattern set.
+ */
 export function convertQss(sheet: string): string {
   // Convert Qt QSS class selectors to standard CSS classes (QLabel -> .QLabel).
   let converted = sheet.replace(
@@ -1032,6 +1040,9 @@ export function renderLayout(
     }
 
     if (layoutClass === "QGridLayout" && row !== null && column !== null) {
+      // Qt grid rows/columns are 0-based; CSS grid lines are 1-based. The +1
+      // converts a Qt cell index into its CSS grid-line start. Keep this offset
+      // when editing layout placement or items shift one cell up/left.
       const r = parseInt(row, 10) + 1;
       const c = parseInt(column, 10) + 1;
       const rs = rowSpan ? parseInt(rowSpan, 10) : 1;

@@ -6,6 +6,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/); versions follow 
 
 ## [Unreleased]
 
+### Repository modernization (2026-07-05)
+
+Portfolio-wide hygiene and release-automation pass. No renderer behavior changed.
+
+- **Root `test.sh`.** One script runs all three suites — `quiht-core` (vitest),
+  `quiht-l10n-vu` (vitest), and `quiht-tools` (pytest) — mirroring CI. 72 tests
+  pass (57 + 6 + 9).
+- **Tag-triggered release CI** (`.github/workflows/release.yml`). Pushing a
+  `vA.B.C` tag builds, tests, and publishes all four packages from the tag —
+  `quiht-tools` to PyPI (trusted publishing) and `quiht-core` / `quiht-l10n-vu`
+  to npm (with the `file:` dep rewritten to the semver, matching `publish.sh`).
+- **`.gitignore` hygiene.** Added `.omc/` and `.codegraph/` (local agent/index
+  state) so they stop being tracked.
+- **Load-bearing code comments.** Flagged the three subtle spots so the next
+  editor doesn't get bitten: the QSS transform is best-effort-not-a-parser
+  (`convertQss`), the Qt-0-based → CSS-1-based grid `+1` offset (`renderLayout`),
+  and the reviewer's `extractTranslatableItems` must track the renderer's key
+  convention.
+- **Project icon** at `docs/assets/icon.png` (single-line Steinberg-style mark).
+
 ### Dark-mode icons + YSelector is a label, not a checkbox (2026-05-27)
 
 Three fidelity fixes for FontLab preference panes, verified in a browser against

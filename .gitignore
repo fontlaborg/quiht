@@ -1,4 +1,6 @@
 __pycache__/
+.omc/
+.codegraph/
 !.env.example
 !.yarn/patches
 !.yarn/plugins

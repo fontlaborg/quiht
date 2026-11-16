@@ -58,8 +58,8 @@ section "quiht-tools -> PyPI"
   # release tag so PyPI receives A.B.C artifacts, not pre-tag .dev artifacts.
   run uvx hatch clean
   run uv build
-  # uv publish reads PyPI credentials from env/keyring (UV_PUBLISH_TOKEN, etc.)
-  run uv publish
+  # Trusted Publishing: staged on a draft release, uploaded by pypi-upload.yml
+  run "$ROOT/scripts/pypi-upload.sh" dist/*
 )
 
 # --- npm: quiht-core then quiht-l10n-vu --------------------------------------
